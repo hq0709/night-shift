@@ -11,7 +11,15 @@ controls) and is nearly uninformative about whether the can't-miss diagnosis was
 discrimination rises to 0.75/0.80. Confidence-gated deferral therefore fails on precisely the cases
 it exists to catch.
 
-25,485 episodes · 5 models · 2 vendors · 6 benchmarks · static and interactive settings.
+Approximately 30,000 episodes · 5 models · 2 vendors · 9 evaluation sets · static and interactive
+settings · three ablations of the elicitation schema.
+
+**A correction recorded here because it changed a headline claim.** An earlier version of this
+analysis reported a missed-red-flag rate of 40--47% and near-chance discrimination on that endpoint.
+Those numbers were computed on incomplete records: the elicited differential was not being persisted,
+so the endpoint of Eq. (4), defined over `differential ∪ {rho}`, was in fact evaluated on `rho`
+alone. With the full record the hit rate is 92% and discrimination is 0.667--0.687. The manuscript
+reports the corrected values.
 
 ## Layout
 
