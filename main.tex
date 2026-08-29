@@ -37,8 +37,8 @@ $3.6$ points, so the model registers the deficiency. It does not move the abilit
 in any condition tested. Confidence separates episodes where the missing item was obtained from
 those where it was not (AUROC $0.661$), and separates correct from incorrect answers \emph{better}
 where the item was missing than where it was present. The practical consequence is that a confidence
-gate catches information gaps and not knowledge errors: across $\sim$33{,}000 episodes, five models
-and nine evaluation sets, discrimination is strong where insufficiency dominates---interactive
+gate catches information gaps and not knowledge errors: across $\sim$33{,}700 episodes, five models
+and eight evaluation sets, discrimination is strong where insufficiency dominates---interactive
 consultation, $0.75$--$0.80$---and at chance where the information is complete and the error is one
 of knowledge ($0.48$--$0.54$). A threshold meeting an $0.85$ service level in validation returns
 $0.716$--$0.763$ on can't-miss presentations, with nothing in the validation data signalling the
@@ -535,6 +535,19 @@ show that this account predicts where confidence works and fails. Sections~V-E--
 artifacts that could produce those observations spuriously. Sections~V-I--K give the clinical
 results and the deployment consequence.
 
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figs/fig0_core.pdf}
+\caption{The central result. Restoring the single item a case requires moves accuracy (left) and
+stated confidence (centre) by amounts graded to how much the removal cost---large where the case was
+rendered unanswerable, small where it remained answerable---while leaving discrimination
+statistically unmoved (right; bars are $95\%$ bootstrap intervals on $\Delta$AUROC, four of five
+containing zero). Elicited confidence tracks what the model is missing, not whether its answer is
+right.}
+\label{fig:core}
+\end{figure*}
+
 \subsection{Removing what a case requires moves confidence but not discrimination}
 The central experiment asks what elicited confidence is a report of, by removing the single item a
 case requires and observing which quantities move. The case, the reference label, the prompt and the
@@ -543,8 +556,8 @@ the key discriminating finding is removed from the vignette, restored to it, or 
 if the model requests it. In the computational setting a numerically required laboratory value is
 removed, which makes the calculation unanswerable rather than merely harder.
 
-The manipulation is effective in every cell and its magnitude is graded by how much the removal
-costs. On MedCalc, where the removed value makes the calculation unanswerable, accuracy falls by
+Fig.~\ref{fig:core} gives the result in full. The manipulation is effective in every cell and its
+magnitude is graded by how much the removal costs. On MedCalc, where the removed value makes the calculation unanswerable, accuracy falls by
 $41$ points and mean stated confidence by $3.5$ points on a ten-point scale. On AgentClinic, where
 the case remains answerable without the key finding, accuracy falls by $9$ points and confidence by
 $0.5$. The model therefore registers not merely that something is absent but roughly how much its
@@ -1045,7 +1058,7 @@ accuracy of RedFlag-99 via \eqref{eq:match}; dashed lines mark the central $95\%
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig8_acc_vs_auc.pdf}
-\caption{Discrimination against task accuracy across all nine evaluation sets,
+\caption{Discrimination against task accuracy across all eight evaluation sets,
 \texttt{gpt-5.4-mini}. Competence and discrimination are associated (dotted trend), but the
 association is not the whole story: RedFlag-99 sits below the trend, interactive consultation above
 it.}
@@ -1240,7 +1253,7 @@ generation; the post-hoc format controls for this and shows no difference.
 
 \section{Conclusion}
 Elicited confidence in clinical language models is not a stable property that can be measured once
-and relied upon. Across 25{,}485 episodes, five models, two vendors and nine evaluation sets, its
+and relied upon. Across 33{,}700 episodes, five models, two vendors and eight evaluation sets, its
 discriminative power ranges from chance to strong within a single model, governed by whether the
 item lies at the model's capability frontier, whether it carries a can't-miss presentation, and
 whether the model gathered the evidence itself. The variation across conditions exceeds the variation
