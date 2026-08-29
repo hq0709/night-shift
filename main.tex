@@ -26,25 +26,26 @@ Task-Dependent Reliability of Verbalized Uncertainty in Clinical Language Models
 \maketitle
 
 \begin{abstract}
-Confidence-gated deferral---routing low-confidence model outputs to a clinician---is the most
-widely proposed safety mechanism for deploying large language models (LLMs) in clinical decision
-support. Its validity rests on an untested premise: that elicited confidence discriminates correct
-from incorrect clinical outputs. We evaluate that premise across 25{,}485 model episodes spanning
-five LLMs from two vendors, six benchmarks, two answer formats, and both static and interactive
-consultation settings. Discrimination is strongly task-dependent. On standard clinical items,
-elicited confidence separates correct from incorrect answers (AUROC $0.67$--$0.70$); at the
-capability frontier it collapses to chance ($0.48$--$0.54$), and this collapse is not an artifact of
-base rate---after resampling standard items to the frontier accuracy, AUROC is unchanged
-($0.698$/$0.703$). Critically, on a probe of 99 items carrying can't-miss diagnoses, discrimination
-degrades \emph{beyond} what difficulty alone predicts ($\Delta$AUROC $-0.082$ and $-0.063$ versus
-accuracy-matched controls), and confidence carries almost no information about whether the
-can't-miss diagnosis was itself missed remains intact (AUROC $0.687$/$0.667$), so a single
-calibration figure describes neither endpoint. When the
-model gathers its own evidence through multi-turn consultation, discrimination rises to $0.75$/$0.80$
-and deferring $18.5\%$ of cases raises accuracy of the retained set by $8.3$ points. Confidence
-elicited on static benchmarks therefore neither predicts nor bounds the reliability of confidence in
-interactive deployment. A gate validated on standard benchmark items does not transfer to
-high-acuity presentations or across modality.
+Confidence-gated deferral---routing low-confidence model outputs to a clinician---is the most widely
+proposed safety mechanism for deploying large language models in clinical decision support. Its
+validity rests on an untested premise: that elicited confidence discriminates correct from incorrect
+clinical outputs. We evaluate that premise across roughly 30{,}000 model episodes spanning five LLMs
+from two vendors, nine evaluation sets, two answer formats, and both static and interactive
+consultation. Discrimination is not a model property but a task property: within a single model it
+ranges from chance to strong (AUROC $0.48$ to $0.80$), a swing larger than the difference between
+the weakest and strongest models in any one condition. It collapses at the capability frontier
+($0.48$--$0.54$), which is not a base-rate artifact---after resampling standard items to the frontier
+accuracy, AUROC is unchanged ($0.698$/$0.703$)---and is not recovered by any of four elicitation
+formats, three response scales, or sampling self-consistency. On presentations carrying can't-miss
+diagnoses, discrimination of answer correctness degrades beyond what difficulty predicts
+($\Delta$AUROC $-0.082$ and $-0.063$ against accuracy-matched controls) while discrimination of
+whether the can't-miss diagnosis was entertained remains intact ($0.687$/$0.667$); the two endpoints
+a clinical gate must serve therefore do not degrade together. When the model gathers its own evidence
+through multi-turn consultation, discrimination rises to $0.75$/$0.80$. We quantify the consequence:
+a deferral threshold meeting an $0.85$ service level in validation delivers $0.716$--$0.763$ when
+transferred unchanged to can't-miss presentations, with nothing in the validation data signalling the
+shortfall, and the direction of transfer a development pipeline naturally takes is the failing one.
+A confidence gate must be validated in the modality and on the acuity stratum in which it will run.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -982,6 +983,59 @@ Ablation & Variant & Acc. & Breadth & AUROC & [95\% CI] \\
 \end{tabular}}
 \end{table}
 
+
+\begin{table}[t]
+\caption{Cost of transferring a deferral threshold across conditions. The threshold is the smallest
+value achieving $\ge 0.85$ accuracy on the retained set in the calibration condition; it is then
+applied unchanged in the deployment condition. Transfer into the high-acuity stratum fails from
+every origin, and the failure is not detectable from the calibration condition.}
+\label{tab:transfer}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllrrl}
+\toprule
+Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
+\midrule
+\multirow{4}{*}{gpt-5.4-mini}
+ & standard bench & interactive & 10 & 74.9\% & .857 \\
+ & standard bench & high acuity & 10 & 74.4\% & \textbf{.763} \\
+ & static OSCE & high acuity & 10 & 74.4\% & \textbf{.763} \\
+ & interactive & high acuity & 10 & 74.4\% & \textbf{.763} \\
+\midrule
+\multirow{3}{*}{gpt-5.4}
+ & standard bench & interactive & 9 & 44.5\% & .896 \\
+ & standard bench & high acuity & 9 & 22.4\% & \textbf{.759} \\
+ & interactive & high acuity & 8 & 6.4\% & \textbf{.716} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{The cost of transferring a threshold}
+The recommendation that a gate be validated where it will run is only useful if the cost of ignoring
+it can be stated. We therefore calibrate a threshold in one condition and apply it unchanged in
+another. Fixing a service level of $0.85$ accuracy on the retained set, Table~\ref{tab:transfer}
+gives the smallest threshold meeting it in the calibration condition and the accuracy that threshold
+actually delivers elsewhere.
+
+Transfer into the high-acuity stratum fails from every origin tested. A threshold calibrated on
+standard benchmark items, on static OSCE vignettes, or in interactive consultation delivers
+$0.716$--$0.763$ on can't-miss presentations---between $9$ and $13$ points below the service level it
+was chosen to guarantee---while still deferring up to three quarters of cases. The shortfall is
+invisible from the calibration condition: the same threshold meets its target there, so nothing in
+the validation data signals that it will not hold.
+
+Transfer in the reverse direction is benign. A threshold calibrated on standard items exceeds its
+target when applied to interactive consultation ($0.857$ and $0.896$), because discrimination is
+better in that setting than where the threshold was set. The asymmetry matters operationally: the
+direction of transfer that a development pipeline naturally takes---validate on a benchmark, deploy
+to a harder stratum---is the direction that fails.
+
+For \texttt{gpt-5.4-mini} no threshold reaches $0.85$ on high-acuity items at all; the calibration
+procedure returns a degenerate threshold that defers every case. A gate calibrated on that stratum
+therefore does not produce a conservative setting, it produces the abandonment of autonomy, which is
+a different and more honest failure than silently under-performing.
+
 \subsection{What elicited confidence tracks}
 Fig.~\ref{fig:mech} summarises the three relationships. Confidence agrees across models more
 strongly than accuracy does: mean pairwise correlation of
@@ -1043,7 +1097,10 @@ data, and confidence measured in consultation would overstate reliability for a 
 from a completed record. Neither direction of extrapolation is safe, and the difference is larger
 than the difference between the models we tested.
 
-\emph{A gate must be validated on the acuity stratum it will protect.} Validation on standard
+\emph{A gate must be validated on the acuity stratum it will protect}, and the cost of not doing so
+is measurable. Table~\ref{tab:transfer} shows a threshold meeting a $0.85$ service level in
+validation delivering $0.716$--$0.763$ on can't-miss presentations, with nothing in the validation
+data to signal the shortfall. Validation on standard
 benchmark items reports $0.70$; the same gate applied to can't-miss presentations delivers $0.62$ for
 answer correctness. The endpoint of whether the can't-miss condition was entertained behaves
 differently again, at $0.667$--$0.687$: the two endpoints a clinical gate must serve are not
@@ -1098,6 +1155,11 @@ diagnosis was considered at all at
 $0.667$--$0.687$---the two endpoints a gate must serve do not degrade together, so no single
 calibration figure describes both. Against this, the same models in interactive consultation reach
 $0.75$--$0.80$ on answer correctness, and deferral there is genuinely useful.
+
+The cost of ignoring this is quantified rather than asserted: a threshold meeting a $0.85$ service
+level in validation returns $0.716$--$0.763$ when transferred to high-acuity cases, and the
+development pipeline's natural direction of transfer---benchmark to deployment stratum---is the
+failing one.
 
 Confidence-gated deferral is therefore neither uniformly sound nor uniformly unsound. It should be
 validated in the modality and on the acuity stratum in which it will operate, with a decision curve
