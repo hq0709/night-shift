@@ -1,0 +1,21 @@
+### TABLE: 主结果 ###
+MedAgentsBench-hard        gpt-5.4-mini     n= 2228 acc=0.387 conf=8.68 AUROC=0.492 [0.469,0.515]
+MedAgentsBench-hard        gpt-5.4          n= 2235 acc=0.474 conf=8.55 AUROC=0.540 [0.517,0.563]
+MedAgentsBench-hard        claude-sonnet-5  n= 2948 acc=0.445 conf=7.37 AUROC=0.480 [0.460,0.499]
+MedAgentsBench-hard        gpt-4o-mini      n=  784 acc=0.157 conf=8.39 AUROC=0.475 [0.428,0.523]
+MedAgentsBench-std         gpt-5.4-mini     n= 1198 acc=0.760 conf=9.20 AUROC=0.699 [0.666,0.729]
+MedAgentsBench-std         gpt-5.4          n= 1200 acc=0.824 conf=9.20 AUROC=0.703 [0.666,0.739]
+MedAgentsBench-std         gpt-4o-mini      n=  800 acc=0.613 conf=8.63 AUROC=0.671 [0.637,0.705]
+RedFlag-99                 gpt-5.4-mini     n=  594 acc=0.581 conf=8.98 AUROC=0.617 [0.575,0.656]
+RedFlag-99                 gpt-5.4          n=  594 acc=0.694 conf=9.10 AUROC=0.641 [0.592,0.688]
+AgentClinic-static         gpt-5.4-mini     n=  409 acc=0.655 conf=8.62 AUROC=0.669 [0.617,0.721]
+AgentClinic-static         gpt-5.4          n=  303 acc=0.667 conf=8.47 AUROC=0.689 [0.628,0.748]
+AgentClinic-interactive    gpt-5.4-mini     n=  642 acc=0.632 conf=8.56 AUROC=0.751 [0.713,0.787]
+AgentClinic-interactive    gpt-5.4          n=  642 acc=0.727 conf=8.35 AUROC=0.800 [0.759,0.840]
+MMLU-Pro                   gpt-5.4-mini     n=  600 acc=0.742 conf=9.39 AUROC=0.704 [0.659,0.747]
+ARC-Challenge              gpt-5.4-mini     n=  600 acc=0.958 conf=9.79 AUROC=0.782 [0.683,0.874]
+GSM8K                      gpt-5.4-mini     n=  599 acc=0.846 conf=9.93 AUROC=0.534 [0.505,0.566]
+MedCalc                    gpt-5.4-mini     n=  581 acc=0.690 conf=9.38 AUROC=0.693 [0.650,0.736]
+
+### 总 episode 数 ###
+25485 across 29 files

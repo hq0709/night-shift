@@ -1,0 +1,110 @@
+uid	canonical	mapped	weak	sentinel_quote	gold	decision(keep/drop)	note
+medbullets::test::0	acute angle-closure glaucoma	1	1	difficulty seeing	Acetazolamide		
+medbullets::test::197	acute coronary syndrome	1	0	currently feels crushing pressure over his chest	Repeat ECG in 10 minutes		
+medqa::test::521	acute coronary syndrome	1	0	crushing chest pain (10/10 in severity), radiating to the left side of the neck and the left arm	Percutaneous coronary intervention		
+medqa::test::566	acute coronary syndrome	1	0	severe, crushing, substernal chest pain 10 hours ago	Left circumflex artery		
+medqa::test::799	acute coronary syndrome	1	0	sudden severe and crushing substernal chest pain that started 1 hour ago	Beta-1 adrenergic receptor		
+medqa::test::916	acute coronary syndrome	1	0	sudden onset of substernal chest pain	Coronary artery vasospasm		
+medqa::test::993	acute coronary syndrome	1	0	severe, crushing, retrosternal chest pain for the last 45 minutes. The pain radiates to his left shoulder and 	Hemoptysis		
+medxpertqa-r::test::Text-1667	acute coronary syndrome	1	0	severe, crushing substernal chest pain that began 5 hours ago	Coronary artery thrombosis		
+medxpertqa-r::test::Text-363	acute coronary syndrome	1	0	crushing mid-chest pain that extends to his jaw	Obtain intravenous access		
+medxpertqa-r::test::Text-844	acute coronary syndrome	1	0	Her ECG demonstrates ST-segment elevation	Calcium channel blockers and nitrates		
+medqa::test::1115	acute hemolytic transfusion reaction	1	0	becomes acutely anemic in the setting of underlying infection	Hemolytic transfusion reaction; discontinue transfusion		
+medxpertqa-r::test::Text-1151	acute liver failure	1	0	a headache yesterday, for which he took acetaminophen	Accumulation of N-acetyl-p-benzoquinone imine in the liver		
+medxpertqa-r::test::Text-610	acute liver failure	1	0	found unconscious next to a bottle of acetaminophen	Previous hypotension		
+medxpertqa-r::test::Text-806	acute liver failure	1	0	she ingested approximately fifteen 500 mg tablets about 1 hour before arriving at the hospital	Administer activated charcoal		
+medxpertqa-r::test::Text-926	acute liver failure	1	0	AST and ALT levels of approximately 2500 U/L, APAP level of 160 mcg/mL, and INR of 1.7	Involve the patient's husband to guide medical care		
+medbullets::test::157	acute stroke	1	0	sudden onset of slurred speech and right upper extremity weakness	Aspirin		
+medexqa::test::125_speech_pathologist	acute stroke	1	0	suddenly having slurred speech and reduced sensation in the right side of the lips upon waking up	Amyotrophic lateral sclerosis		
+medqa::test::307	acute stroke	1	0	sudden onset of slurred speech ... couldn\u2019t move his arm ... the patient gets increasingly worse and lose	Contact another family member for consent		
+medxpertqa-r::test::Text-1953	acute stroke	1	0	acute onset confusion that began one hour ago... suddenly developed slurred speech, confusion, and weakness	Fingerstick blood glucose		
+medbullets::test::245	aortic dissection	1	0	The pain starts in his chest and moves into his back, arms, and abdomen. He describes the pain as tearing.	CT angiography of the chest, abdomen, and pelvis		
+medqa::test::714	aortic dissection	1	0	suddenly developed excruciating chest pain. He describes the pain as ripping and radiating to the back	Late systolic crescendo murmur at the apex with mid-systolic		
+medxpertqa-r::test::Text-1265	aortic dissection	1	0	acute-onset, severe chest pain radiating to his back ... blood pressure differential between arms	Transesophageal echocardiogram		
+medxpertqa-r::test::Text-712	aortic dissection	1	0	The pain is described as tearing and burning in nature, radiating to his back.	Contrast esophagography with gastrografin		
+medqa::test::1100	bacterial meningitis	1	0	A 2-day-old infant male ... 5-hour history of vomiting and irritability ... he started to become lethargic and	Enlarges hemolytic area of Staphylococcus aureus		
+medqa::test::163	bacterial meningitis	1	0	temperature is 38.5
+cnuchal rigidity. Kernig and Brudzinski signs are present	Positive latex agglutination test		
+medxpertqa-r::test::Text-1087	bacterial meningitis	1	0	fever, headache, and projectile vomiting lasting 6 days. Physical examination reveals neck stiffness	Cryptococcus neoformans		
+medxpertqa-r::test::Text-14	bacterial meningitis	1	0	intermittent fevers reaching 39\u103C	Hypothalamic dysfunction		
+medxpertqa-r::test::Text-47	bacterial meningitis	1	0	severe headache and fever that began 6 hours ago ... generalized petechial rash on his extremities	Blood culture, lumbar puncture, then administration of antib		
+medxpertqa-r::test::Text-702	bacterial meningitis	1	0	2-day history of high fever, headache, and neck stiffness	1 inch lateral and 2 inches superior to the umbilicus		
+medxpertqa-r::test::Text-99	bacterial meningitis	1	0	febrile with ... confused ... neck stiffness	Obtain blood cultures, and initiate treatment with vancomyci		
+medxpertqa-u::test::Text-1464	bacterial meningitis	1	0	fever, headaches... nuchal rigidity, and photophobia. CSF analysis reveals a neutrophil count of 1,500/mm3	Gram-negative coccobacillus		
+medxpertqa-r::test::Text-1031	brain abscess	1	0	headache and numbness with tingling in his left arm that began 2 days ago and has since spread to his left fac	Brain abscess		
+medqa::test::446	brugada syndrome	1	0	His father died of sudden cardiac death at the age of 45 years	Headache and tinnitus		
+medqa::193	cardiac tamponade	1	0	sudden onset of shortness of breath, substernal chest pain at rest increased by inspiration ... and hypotensio	Cardiac Tamponade		
+medqa::test::585	cardiac tamponade	1	0	sudden onset of shortness of breath and substernal chest pain at rest; the pain is increased by inspiration	Cardiac tamponade		
+medqa::test::94	cardiac tamponade	1	0	stab wound to the left chest just below the clavicle ... pulse is 135/min ... palpable systolic blood pressure	A drop in systolic blood pressure of 14 mmHg during inspirat		
+medxpertqa-r::test::Text-2099	cardiac tamponade	1	0	acute onset of chest pain, dyspnea, diaphoresis, and syncope. She had undergone percutaneous transluminal angi	Immediate transfer to the operating room		
+medxpertqa-r::test::Text-503	cardiac tamponade	1	0	He was treated for cardiac tamponade one month ago with pericardiocentesis, during which 300 cc of serosanguin	Referral for surgical subxiphoid pericardiotomy		
+medxpertqa-r::test::Text-823	cardiac tamponade	1	0	12 stab wounds across multiple areas of his body	Cardiac tamponade		
+medbullets::test::68	central retinal artery occlusion	1	0	sudden-onset, painless vision loss in his right eye starting 2 days ago... felt like a "curtain was pulled dow	Continue aspirin and start statin therapy		
+medxpertqa-u::test::Text-1871	compartment syndrome	1	0	supracondylar humerus fracture, which of the following clinical indicators demonstrates the highest sensitivit	increasing analgesia requirement		
+medqa::test::868	complete heart block	1	0	His pulse is 48/min	Cardiac pacing		
+medqa::test::622	cord compression	1	0	increasing weakness in both legs for 7 days ... decreased muscle strength and clonus in both lower extremities	Presence of immunoglobulin bands on cerebrospinal fluid immu		
+medxpertqa-r::test::Text-614	cord compression	1	0	bilateral lower extremity weakness and sustained clonus	Arterial embolization		
+medxpertqa-r::test::Text-1471	diabetic ketoacidosis	1	0	his breath has a fruity odor, and his mucous membranes are dry	Initiate potassium infusion		
+medxpertqa-r::test::Text-1996	diabetic ketoacidosis	1	0	metformin, and dapagliflozin. She appears lethargic	Metabolic acidosis with respiratory acidosis		
+medxpertqa-r::test::Text-2237	diabetic ketoacidosis	1	0	nausea, vomiting, and drowsiness over the past day... confused and lethargic, with a fruity	Normal saline and potassium		
+medxpertqa-r::test::Text-2343	diabetic ketoacidosis	1	0	finds him unresponsive ... abdominal pain, nausea, and vomiting for the past 2 days ... drinking plenty of flu	0.9% saline plus 40 mEq/liter potassium chloride		
+medxpertqa-r::test::Text-2353	diabetic ketoacidosis	1	0	found unconscious in her bedroom... type 1 diabetes... breathing heavily, appears disoriented	Excessive mobilization of fatty acids		
+medxpertqa-r::test::Text-2391	diabetic ketoacidosis	1	0	His medical history includes diabetic nephropathy	Metformin		
+medxpertqa-r::test::Text-1988	diffuse alveolar hemorrhage	1	0	episodes of hemoptysis, generalized muscle pain, and dyspnea	Methylprednisolone, plasmapheresis, and cyclophosphamide		
+medxpertqa-r::test::Text-96	epiglottitis	1	0	her mother noticed a "funny sound" with her breathing that started this afternoon	Staphylococcus aureus		
+medqa::93	esophageal rupture	1	0	persistent, forceful vomiting after consuming a significant amount of alcohol	Boerhaave syndrome		
+medxpertqa-r::test::Text-1519	gallstone ileus	1	0	acute, severe abdominal pain accompanied by nausea and vomiting ... chronic cholelithiasis	Calcified iliac fossa mass		
+medqa::90	giant cell arteritis	1	0	3-week history of headache and progressively worsening vision	Waldenstrom macroglobulinemia		
+medqa::test::749	giant cell arteritis	1	0	pain in his jaw that is worse when he chews	IV steroids		
+medxpertqa-r::test::Text-878	giant cell arteritis	1	0	right temporal headache and right eye visual blurring ... worsen with mastication	Methylprednisolone		
+medxpertqa-r::test::Text-750	high-altitude cerebral edema	1	0	acute onset confusion, gait disturbance, and decreased mental status over the past 2 hours	Dexamethasone		
+medxpertqa-r::test::Text-2217	hyperammonemic encephalopathy	1	0	progressive somnolence following 6 hours of behavioral changes and irritability	X-linked		
+medxpertqa-r::test::Text-1395	intra-abdominal hemorrhage	1	0	motor vehicle collision ... The car was struck on the passenger side ... He reports abdominal pain	Shoulder pain		
+medxpertqa-r::test::Text-787	intra-abdominal hemorrhage	1	0	fell over the handlebars onto the ground ... currently on apixaban therapy ... blood pressure is 102/63 mmHg	Administer intravenous fluid bolus		
+medxpertqa-r::test::Text-2397	methemoglobinemia	1	0	pallor, lethargy, and shortness of breath ... after ingesting pills ... referred to as "poppers"	Oxidation of hemoglobin		
+nejm::46	necrotizing fasciitis	1	0	swelling, tenderness, and crepitus	Delay in surgical intervention >24 hours		
+medqa::test::1251	neuroborreliosis	1	0	A circular red rash with central c[learing]	Ixodes scapularis		
+medxpertqa-r::test::Text-73	neuroleptic malignant syndrome	1	0	temperature 105°F (40.6°C), heart rate 150/min ... schizophrenia, for which he takes haloperidol	Exertional heat stroke		
+medxpertqa-r::test::Text-1636	opioid overdose	1	0	altered mental status and is unresponsive to questions ... PaCO2: 80 mmHg	Heroin overdose		
+medqa::test::984	organophosphate poisoning	1	0	the man is drooling and his eyes are tearing excessively... tilling the fields on the family beet farm when sh	2-pralidoxime		
+medqa::test::320	perforated viscus	1	0	Examination shows a distended, rigid abdomen	Abdominal x-ray		
+medxpertqa-r::test::Text-1197	perforated viscus	1	0	Today, the pain is 10/10, unrelenting for 30 minutes	Left gastric artery		
+medxpertqa-r::test::Text-896	perforated viscus	1	0	two episodes of dark brown emesis today	Inflammation and edema		
+medqa::test::782	preeclampsia / HELLP / eclampsia	1	0	admitted to the hospital at 36 weeks gestation after a generalized tonic-clonic seizure	Proteinuria		
+medxpertqa-r::test::Text-1737	preeclampsia / HELLP / eclampsia	1	0	blood pressure of 145/92 mm Hg and a urine dipstick showing 1+ proteinuria	Start labetalol, and discharge for outpatient management, wi		
+medbullets::test::23	pulmonary embolism	1	0	She was hiking when she suddenly felt unable to breathe	Normal DLCO		
+medxpertqa-r::test::Text-132	pulmonary embolism	1	0	acute onset of pleuritic chest pain and shortness of breath ... left lower leg swelling and pain	CT pulmonary angiography		
+medxpertqa-r::test::Text-1640	pulmonary embolism	1	0	sudden-onset pleuritic chest pain and shortness of breath	Ventilation-perfusion imaging		
+medxpertqa-r::test::Text-1756	pulmonary embolism	1	0	Twelve hours after undergoing a femoral artery embolectomy, an 84-year-old man is found unconscious on the flo	Filling defect of a pulmonary artery on CT pulmonary angiogr		
+medxpertqa-r::test::Text-289	pulmonary embolism	1	0	develops sudden pleuritic chest pain and shortness of breath	Administer intravenous heparin		
+medxpertqa-r::test::Text-646	pulmonary embolism	1	0	progressively worsening dyspnea over the last 3 days ... pleuritic chest pain	Rib raising		
+medxpertqa-r::test::Text-709	pulmonary embolism	1	0	pleuritic chest pain ... began after returning from a flight from Brazil	Bolus of IV fluids		
+nejm::62	pulmonary embolism	1	0	history of ulcerative colitis and pulmonary embolism presented with a 3-day history of dry cough and pleuritic	Hampton’s hump		
+medxpertqa-u::test::Text-1095	raised intracranial pressure	1	0	severe headaches persisting for the past two weeks... accompanied by dizziness and vomiting, which he notes ar	Loss of nasal visual field in the left eye		
+medqa::test::448	ruptured abdominal aortic aneurysm	1	0	presents with abdominal pain and ‘bruising on his feet’	Emergency open surgical repair		
+medxpertqa-r::test::Text-1122	ruptured abdominal aortic aneurysm	1	0	pulsatile mass in the periumbilical region upon deep palpation	Accumulation of foam cells in the tunica intima		
+medxpertqa-r::test::Text-2046	ruptured abdominal aortic aneurysm	1	0	sudden abdominal pain followed by loss of consciousness	Administer normal saline bolus		
+medxpertqa-r::test::Text-2196	salicylate toxicity	1	0	She is comatose but exhibits spontaneous deep and rapid breathing	Medication overdose		
+medxpertqa-r::test::Text-1190	sepsis / septic shock	1	0	minimally responsive, withdrawing only to painful stimuli... blood pressure 90/48 mmHg	Fulminant liver failure		
+medxpertqa-r::test::Text-2275	sepsis / septic shock	1	0	daily fevers reaching 38.9
+celsius ... weekly oral methotrexate 20 mg, weekly subcutaneous etanercept 50 mg	Drug-induced lupus		
+medxpertqa-r::test::Text-531	sepsis / septic shock	1	0	temperature of 104.9
+cF (40.5
+cC), hypotension (60/35 mmHg), tachycardia (130/min)	Code status		
+medxpertqa-r::test::Text-1723	septic arthritis	1	0	sudden onset joint pain affecting his right knee and left wrist ... untreated community-acquired pneumonia	Streptococcus pneumoniae		
+medqa::test::746	serotonin syndrome	1	0	presents to the emergency room with a fever... worsening malaise and diaphoresis over the past 48 hours	Increased tryptophan intake		
+medxpertqa-r::test::Text-1055	serotonin syndrome	1	0	temperature 39.6\u00b0C (103.2\u00b0F), heart rate 135/min, blood pressure 178/98 mm Hg	Dantrolene		
+medxpertqa-r::test::Text-1482	severe symptomatic hyponatremia	1	0	discovered unconscious in an alley surrounded by empty beer containers. During IV line placement attempts, he 	Normal extracellular fluid status		
+medxpertqa-r::test::Text-2183	status asthmaticus	1	0	severe persistent asthma presents to the emergency department with respiratory distress lasting 3 days	Lactic acidosis		
+medxpertqa-r::test::Text-1053	strangulated hernia	1	0	sudden right scrotal pain, accompanied by swelling and nausea, which began three hours earlier after lifting a	No further tests are needed		
+medbullets::test::163	subarachnoid hemorrhage	1	0	this is the worst headache of her life	Fat-soluble vitamin overuse		
+medxpertqa-r::test::Text-1353	subarachnoid hemorrhage	1	0	acute onset of severe headache and neck stiffness lasting two hours, describing it as his worst headache ever	Nodular hepatomegaly		
+medxpertqa-r::test::Text-220	superior vena cava syndrome	1	0	intermittent swelling of his face and arms, which worsens when lying flat	Right upper lobe		
+medqa::test::342	tension pneumothorax	1	0	the patient is in moderate respiratory distress	Needle thoracostomy		
+medxpertqa-r::test::Text-178	tension pneumothorax	1	0	Left-sided diminished breath sounds, rib deformity, and rightward tracheal deviation	Right distal femur		
+medxpertqa-r::test::Text-900	tension pneumothorax	1	0	respiratory rate of 25 breaths per minute (stem truncated; tension pneumothorax implied by the required interv	Placement of a large-bore thoracostomy tube		
+medxpertqa-r::test::Text-1665	testicular torsion	1	0	acute testicular pain that began 15 minutes prior and has not subsided	Bilateral surgical procedure		
+medxpertqa-r::test::Text-199	testicular torsion	1	0	acute onset of severe lower abdominal pain and right groin pain, accompanied by nausea and vomiting for the pa	increased muscle tension in the paravertebral tissue at T10-		
+medqa::38	volvulus	1	0	several episodes of bilious vomiting and is intolerant to feeding since birth	Duodenal atresia		
+medxpertqa-r::test::Text-1913	volvulus	1	0	three episodes of bilious vomiting	Jejunal atresia		
+medxpertqa-r::test::Text-63	volvulus	1	0	progressive abdominal pain that has intensified in the last 24 hours... no bowel movement for the past 72 hour	Malrotation of the gut		

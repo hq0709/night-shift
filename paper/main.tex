@@ -1,0 +1,511 @@
+%% IEEE Transactions format (IEEEtran). Target: IEEE JBHI / TMI family.
+%% Note: this study contains no imaging data; JBHI is the closer fit within the IEEE Trans family.
+\documentclass[journal,twoside]{IEEEtran}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{microtype}
+\sloppy
+
+\begin{document}
+
+\title{Elicited Confidence Is Not a Safety Signal:\\
+Task-Dependent Reliability of Verbalized Uncertainty in Clinical Language Models}
+
+\author{Anonymous
+\thanks{Manuscript submitted 2026. Corresponding author: --.}}
+
+\markboth{IEEE Transactions on Biomedical and Health Informatics}%
+{Author \MakeLowercase{\textit{et al.}}: Elicited Confidence Is Not a Safety Signal}
+
+\maketitle
+
+\begin{abstract}
+Confidence-gated deferral---routing low-confidence model outputs to a clinician---is the most
+widely proposed safety mechanism for deploying large language models (LLMs) in clinical decision
+support. Its validity rests on an untested premise: that elicited confidence discriminates correct
+from incorrect clinical outputs. We evaluate that premise across 25{,}485 model episodes spanning
+five LLMs from two vendors, six benchmarks, two answer formats, and both static and interactive
+consultation settings. Discrimination is strongly task-dependent. On standard clinical items,
+elicited confidence separates correct from incorrect answers (AUROC $0.67$--$0.70$); at the
+capability frontier it collapses to chance ($0.48$--$0.54$), and this collapse is not an artifact of
+base rate---after resampling standard items to the frontier accuracy, AUROC is unchanged
+($0.698$/$0.703$). Critically, on a probe of 99 items carrying can't-miss diagnoses, discrimination
+degrades \emph{beyond} what difficulty alone predicts ($\Delta$AUROC $-0.082$ and $-0.063$ versus
+accuracy-matched controls), and confidence carries almost no information about whether the
+can't-miss diagnosis was itself missed (AUROC $0.532$/$0.567$); deferring the least-confident $22\%$
+of these cases reduces the missed-red-flag rate by only $3$ percentage points. In contrast, when the
+model gathers its own evidence through multi-turn consultation, discrimination rises to $0.75$/$0.80$
+and deferring $18.5\%$ of cases raises accuracy of the retained set by $8.3$ points. Confidence
+elicited on static benchmarks therefore neither predicts nor bounds the reliability of confidence in
+interactive deployment, and confidence-gated deferral fails precisely on the cases it is intended to
+catch.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Clinical decision support, large language models, uncertainty quantification, selective prediction,
+patient safety, model calibration.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{L}{arge} language models are entering clinical decision support through triage
+assistants, differential-diagnosis aids, and documentation tools. Because such systems will be wrong
+some of the time, essentially every proposed deployment architecture includes an abstention
+pathway: the model reports a confidence, and outputs below a threshold are escalated to a
+clinician. This design is attractive because it requires no access to model internals---the
+confidence is simply elicited in natural language---and because it maps onto existing clinical
+triage workflows.
+
+The design presumes that elicited confidence is informative about correctness. In the general
+machine-learning literature this presumption has been repeatedly questioned: verbalized confidence
+is systematically overconfident~\cite{xiong2023,kadavath2022}, its structure across models is
+dominated by a single shared item-difficulty factor rather than by any model-specific
+self-knowledge~\cite{metacog2026}, and overconfidence has been traced to a failure to condition the
+stated confidence on the model's own answer~\cite{advice2025}. What that literature does not
+address, because it lacks clinical risk labels, is the question a clinical deployment actually turns
+on: \emph{does confidence remain informative on the cases where being wrong is most consequential?}
+
+A safety mechanism that works on average but fails on high-acuity presentations is worse than no
+mechanism, because it produces false assurance exactly where assurance is unwarranted. We therefore
+evaluate elicited confidence under three conditions that matter clinically and are absent from prior
+general-domain work: (i) at the model's capability frontier, (ii) on cases carrying time-critical
+can't-miss diagnoses, and (iii) in interactive consultation, where the model must decide for itself
+what history to take and what tests to order.
+
+\subsection{Contributions}
+\begin{itemize}
+\item We show that the discriminative power of elicited confidence is task-dependent rather than a
+fixed model property, ranging from chance ($0.48$) to strong ($0.80$) within the same model, and we
+establish that the frontier collapse survives accuracy matching and is therefore not a base-rate
+artifact.
+\item We construct \textbf{RedFlag-99}, a probe of 99 clinical items carrying can't-miss diagnoses
+across 44 conditions, built by a pre-registered sentinel-feature filter rather than by gold-label
+matching---which recovers only 41 items from 7{,}956---and show that confidence degrades on these
+items beyond what difficulty predicts.
+\item We show that confidence is near-uninformative about the clinically decisive endpoint---whether
+the can't-miss diagnosis entered the differential at all (AUROC $0.532$/$0.567$)---and quantify the
+resulting futility of confidence-gated deferral by decision-curve analysis.
+\item We show that the same models, on the same case material, yield substantially more informative
+confidence when they gather evidence interactively (AUROC $0.75$/$0.80$), establishing that static
+benchmark estimates of confidence reliability do not transfer to interactive deployment in either
+direction.
+\end{itemize}
+
+\section{Related Work}
+
+\subsection{Eliciting and calibrating confidence in language models}
+Kadavath \emph{et al.}~\cite{kadavath2022} established that models can, under favorable conditions,
+self-evaluate proposed answers. Black-box elicitation was then systematized by Xiong \emph{et
+al.}~\cite{xiong2023}, who factored the problem into prompting strategy, sampling, and aggregation
+and benchmarked the combinations across five datasets; they report that every method examined
+degrades on tasks demanding professional knowledge---the regime this paper isolates. Subsequent work
+has largely pursued mitigation. Self-evaluation can be adapted for selective
+prediction~\cite{selfeval2023}; calibration can be improved by self-generated
+distractors~\cite{distractor2025}, by aligning verbalized with internal
+confidence~\cite{dca2025,latentconf2026}, by order-aware alignment~\cite{orce2026}, or by
+self-calibration at test time~\cite{selfcal2025}. ADVICE~\cite{advice2025} identifies
+answer-independence---the failure to condition the stated confidence on the model's own
+answer---as a primary driver of overconfidence and corrects it by fine-tuning. Surveys and empirical
+audits confirm that overconfidence persists across current
+models~\cite{overconf2026,calsurvey2026,tokenprob2026}.
+
+\subsection{Is elicited confidence metacognition?}
+A separate line asks what elicited confidence measures rather than how to fix it.
+MIRROR~\cite{mirror2026} benchmarks metacognitive calibration hierarchically; other work probes
+introspection directly~\cite{introspect2026} or attempts to steer it~\cite{steermeta2026}. Most
+relevant to us, Moran \emph{et al.}~\cite{metacog2026} decompose binary confidence judgements from
+20 models across six benchmarks and find the cross-model confidence matrix approximately rank-one:
+models share an item-level difficulty axis and differ mainly in decision threshold, with the
+confidence--performance relationship vanishing once items all models agree on are removed. They
+report no evidence of individuated metacognition in any domain tested. A complementary result shows
+that confidences do not govern behavior: models act against their own stated
+confidences in agentic settings~\cite{actionbelief2025}. Our general-domain observations---strong
+cross-model agreement in confidence, near-zero within-model correlation with correctness---reproduce
+this picture, and we treat it as established background rather than as a contribution. What this
+line cannot address, lacking clinical risk labels, is whether confidence remains informative where
+error is most consequential.
+
+\subsection{Behavioral alternatives to verbalized confidence}
+Because stated confidence is unreliable, many systems substitute behavioral signals: answer
+consistency across samples~\cite{trac2026}, conformal procedures built on self-consistency
+sampling~\cite{conformal2026}, or reasoning-conditioned estimates~\cite{cdur2026}. Selective
+prediction with such signals has been studied for code~\cite{sqlsel2026} and, in the medical
+setting, for vision-language triage~\cite{triage2026}. We evaluate the two cheapest behavioral
+alternatives---sampling self-consistency and cross-model agreement---and find neither recovers
+discrimination at the capability frontier.
+
+\subsection{Test-time compute and its effect on confidence}
+Medical test-time scaling has been studied on the ascending half of the compute
+curve~\cite{m1_2025,ttsmed2025}. Two results bear directly on our design. CDUR~\cite{cdur2026}
+reports that increasing chain-of-thought budget can induce overconfidence non-monotonically, and
+Hu \emph{et al.}~\cite{thinkshift2026} show that enabling thinking shifts the \emph{composition} of
+errors while aggregate accuracy barely moves. We therefore vary the effort parameter as a
+manipulation and verify that our conclusions hold at every operating point rather than at one.
+
+\subsection{Uncertainty and safety in clinical language models}
+Confidence in clinical LLMs has been examined by specialty~\cite{gastro2025} and by prompting
+strategy~\cite{promptmed2025}, generally reporting aggregate calibration on benchmark question sets.
+SaFE-Scale~\cite{safescale2026} shows that clinical safety and accuracy follow different scaling
+laws across deployment conditions including inference-time compute, and that consequential errors
+concentrate in a small subset of items---motivating our stratification by clinical risk rather than
+by average performance. Failure-mode analyses of clinical agents identify information-seeking
+failure, anchoring, and premature closure~\cite{infoseek2026,premature2026,clinmm2026}, and
+ResidencyRL~\cite{residency2026} establishes missed-red-flag rate as a headline safety endpoint; we
+adopt that endpoint and ask whether elicited confidence predicts it. Multi-agent deliberation has
+been proposed to improve clinical reasoning~\cite{ophtha2026,drl2026}, and long-context clinical
+benchmarks expose anchoring to early interpretations~\cite{realicu2026}. Interactive clinical
+benchmarks~\cite{agentclinic} provide the consultation modality but have not been used to evaluate
+confidence, which is the gap our interactive experiments fill.
+
+\section{Materials and Methods}
+
+\subsection{Models}
+Five models from two vendors spanning three capability tiers were evaluated:
+\texttt{gpt-5.4}, \texttt{gpt-5.4-mini}, \texttt{gpt-5.4-nano}, \texttt{gpt-4o-mini} (non-reasoning),
+and \texttt{claude-sonnet-5}. Including a non-reasoning model tests whether the phenomenon depends on
+explicit reasoning machinery. All calls were made through vendor APIs between 2026-08-28 and
+2026-08-29; every response, token count, and latency was logged and cached.
+
+\subsection{Datasets}
+\textbf{Clinical.} MedAgentsBench~\cite{medagents} provides a hard subset (\texttt{test\_hard},
+894 items over 10 sources) on which contemporary models sit near chance, and a standard-difficulty
+split from the same sources; using both isolates difficulty from corpus. AgentClinic~\cite{agentclinic}
+provides 214 OSCE vignettes with free-text gold diagnoses, used both as static vignettes and as
+interactive consultations. MedCalc-Bench~\cite{medcalc} provides 1{,}100 procedural calculation items
+with an acceptance band and a ground-truth formula, permitting separation of execution slips from
+formula errors.
+
+\textbf{Non-clinical controls.} MMLU-Pro, ARC-Challenge, and GSM8K were included as independent
+corpora spanning a wide accuracy range and two answer formats.
+
+\subsection{The RedFlag-99 probe}
+Filtering benchmark items by gold \emph{diagnosis} recovers few high-acuity cases, because in
+exam-style items the gold answer is typically a management step: matching a can't-miss diagnosis list
+against gold labels returned 41 items from 7{,}956 clinical items. We therefore filter on
+\emph{sentinel features in the stem}. Forty-eight regular expressions encode presenting features that
+oblige exclusion of a time-critical diagnosis (thunderclap onset, pain out of proportion, saddle
+anesthesia, tearing chest pain with a pulse differential, and others), compiled from standard
+emergency-medicine can't-miss lists. This is a mechanical criterion and requires no clinical
+judgement at filter time.
+
+The filter returned 164 candidates. An automated annotator not among the evaluated models confirmed
+105 as genuinely obliging exclusion of a can't-miss diagnosis (yield $64\%$) and supplied an alias
+set for machine-checkable scoring; labels were then mapped onto a closed vocabulary ($100\%$ mapped,
+46 conditions) and screened mechanically for fabricated sentinel quotes, alias/condition mismatch,
+and duplicates ($103/105$ passed). Ninety-nine items were available in the evaluation split,
+covering 44 conditions. All 99 have gold answers that are management steps rather than diagnosis
+names, so ``missed the red flag'' and ``answered incorrectly'' are distinct endpoints by
+construction.
+
+\textbf{Annotation reliability.} Three independent automated annotators of differing scale judged
+each item; Fleiss' $\kappa = 0.487$, with $77/99$ unanimous. No physician reviewed these items. All
+principal analyses are repeated on the unanimous subset as a sensitivity analysis.
+
+\subsection{Elicitation protocol}
+Every episode used a fixed structured-output schema requesting, in one response: the differential
+actually considered, the single can't-miss condition actively excluded, the findings used, the
+committed answer, and a confidence. The schema is byte-identical across all conditions, so the
+elicitation of confidence never varies with the experimental factor. Responses were parsed from JSON
+with at most one retry; parse rate was $1.000$.
+
+\textbf{Elicitation-format control.} To exclude the possibility that null discrimination reflects a
+poorly chosen response format, four formats were compared on identical items: an integer $1$--$10$
+scale, a $0$--$100$ probability, a four-level verbal scale, and a post-hoc self-check in which the
+answer and the confidence judgement are produced in separate calls.
+
+\subsection{Interactive protocol}
+In the interactive setting the model receives only the presenting information and must issue at most
+$T=8$ actions, each either a question to a simulated patient or a test order, before committing.
+Patient responses are produced by a separate model; test results are returned by deterministic lookup
+against the case file, so evidence availability cannot drift between conditions. The commitment turn
+uses the same fixed schema as all static conditions. The response ceiling was set well above the
+observed reasoning draw; truncation was logged per episode and any truncated call was automatically
+retried at a doubled ceiling, because a ceiling near the reasoning draw manufactures non-responses at
+high effort.
+
+\subsection{Endpoints and statistics}
+The primary endpoint is the area under the ROC curve for elicited confidence discriminating correct
+from incorrect responses. AUROC is used rather than expected calibration error because ECE conflates
+global bias with discriminative power: a model that shifts all its confidences downward improves ECE
+without gaining any ability to identify its own errors. The clinical endpoint is whether the
+can't-miss diagnosis appears in the stated differential or the actively-excluded field, matched
+through the alias set. Decision-curve analysis reports, for each confidence threshold, the fraction
+of cases deferred and the endpoint rate among cases retained for autonomous handling.
+
+All intervals are bootstrap percentile intervals over $4{,}000$ resamples at the episode level.
+Difficulty matching subsamples the correct responses of the comparison set until its accuracy equals
+that of the target set, repeated $3{,}000$ times; AUROC is rank-based and therefore base-rate
+invariant in principle, and this procedure verifies it empirically.
+
+\section{Results}
+
+\subsection{Discrimination is task-dependent, not a fixed model property}
+Fig.~\ref{fig:disc} and Table~\ref{tab:main} report the primary endpoint across all conditions. Within a single model,
+AUROC ranges from $0.492$ to $0.800$. On standard-difficulty clinical items confidence is
+informative ($0.699$ and $0.703$); on the hard subset of the same sources it is at chance
+($0.492$ and $0.540$). The pattern reproduces in a non-reasoning model ($0.671$ standard,
+$0.475$ hard), so it does not depend on explicit reasoning machinery, and in a second vendor's model
+($0.480$ on the hard subset).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figs/fig1_discrimination.pdf}
+\caption{Discriminative power of elicited confidence, by deployment condition. Points are AUROC with
+$95\%$ bootstrap intervals over episodes; the right-hand column gives task accuracy. The same model
+spans chance to strong discrimination depending on condition: at the capability frontier confidence
+is uninformative, on high-acuity presentations it is degraded beyond what difficulty predicts, and in
+interactive consultation---where the model obtains its own evidence---it is most informative.}
+\label{fig:disc}
+\end{figure*}
+
+\begin{table}[t]
+\caption{Discrimination of elicited confidence across conditions. AUROC with $95\%$ bootstrap
+interval; $\star$ indicates the interval excludes $0.5$.}
+\label{tab:main}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrrl}
+\toprule
+Setting & Model & $n$ & Acc. & AUROC [95\% CI] \\
+\midrule
+\multicolumn{5}{l}{\emph{Clinical, static, capability frontier}}\\
+MedAgentsBench-hard & gpt-5.4-mini & 2228 & .387 & .492 [.469, .515] \\
+MedAgentsBench-hard & gpt-5.4 & 2235 & .474 & .540 [.517, .563]$^\star$ \\
+MedAgentsBench-hard & sonnet-5 & 2948 & .445 & .480 [.460, .499] \\
+MedAgentsBench-hard & gpt-4o-mini & 784 & .157 & .475 [.428, .523] \\
+\multicolumn{5}{l}{\emph{Clinical, static, standard difficulty}}\\
+MedAgentsBench-std & gpt-5.4-mini & 1198 & .760 & .699 [.666, .729]$^\star$ \\
+MedAgentsBench-std & gpt-5.4 & 1200 & .824 & .703 [.666, .739]$^\star$ \\
+MedAgentsBench-std & gpt-4o-mini & 800 & .613 & .671 [.637, .705]$^\star$ \\
+AgentClinic (static) & gpt-5.4-mini & 409 & .655 & .669 [.617, .721]$^\star$ \\
+AgentClinic (static) & gpt-5.4 & 303 & .667 & .689 [.628, .748]$^\star$ \\
+\multicolumn{5}{l}{\emph{Clinical, high acuity}}\\
+RedFlag-99 & gpt-5.4-mini & 594 & .581 & .617 [.575, .656]$^\star$ \\
+RedFlag-99 & gpt-5.4 & 594 & .694 & .641 [.592, .688]$^\star$ \\
+\multicolumn{5}{l}{\emph{Clinical, interactive consultation}}\\
+AgentClinic (inter.) & gpt-5.4-mini & 642 & .632 & .751 [.713, .787]$^\star$ \\
+AgentClinic (inter.) & gpt-5.4 & 642 & .727 & .800 [.759, .840]$^\star$ \\
+\multicolumn{5}{l}{\emph{Non-clinical controls}}\\
+MMLU-Pro & gpt-5.4-mini & 600 & .742 & .704 [.659, .747]$^\star$ \\
+ARC-Challenge & gpt-5.4-mini & 600 & .958 & .782 [.683, .874]$^\star$ \\
+MedCalc & gpt-5.4-mini & 581 & .690 & .693 [.650, .736]$^\star$ \\
+GSM8K & gpt-5.4-mini & 599 & .846 & .534 [.505, .566]$^\star$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{The frontier collapse is not a base-rate artifact}
+Because accuracy differs between the standard and hard splits, the AUROC difference could in
+principle reflect base rate rather than difficulty. Subsampling the standard split to the accuracy of
+the hard split leaves AUROC unchanged: $0.698$ [$0.668$, $0.731$] at matched accuracy $0.387$, and
+$0.703$ [$0.670$, $0.735$] at matched accuracy $0.474$, against unmatched values of $0.698$ and
+$0.703$. The collapse is a property of the items, not of the class balance.
+
+\subsection{No elicitation format recovers discrimination}
+Across four formats and two operating points, all eight cells lie at chance: integer
+$0.509$/$0.451$, probability $0.540$/$0.451$, verbal $0.486$/$0.490$, post-hoc self-check
+$0.522$/$0.443$. Repeated sampling is likewise uninformative: within a fixed operating point,
+self-consistency across three samples discriminates no better than the verbalized value
+($0.500$--$0.562$ versus $0.527$--$0.563$). The failure is therefore not one of verbalization---there
+is no accessible signal being poorly reported.
+
+\subsection{Confidence degrades further on can't-miss presentations}
+On RedFlag-99, AUROC is $0.617$ and $0.641$. Against accuracy-matched controls drawn from
+standard-difficulty items, this is a decrement of $-0.082$ and $-0.063$, with the RedFlag value
+falling outside the matched-control interval in both models
+($0.699$ [$0.681$, $0.717$]; $0.704$ [$0.688$, $0.719$]). Restricting to the 77 unanimously annotated
+items leaves the result unchanged ($0.619$ and $0.643$; decrements $-0.079$ and $-0.060$), so the
+finding does not rest on items where annotators disagreed.
+
+\subsection{Confidence does not predict the clinical endpoint}
+The models failed to place the can't-miss diagnosis in the differential in $46.5\%$ and $39.4\%$ of
+red-flag episodes. Confidence discriminates this endpoint at $0.532$ [$0.49$, $0.57$] and
+$0.567$ [$0.52$, $0.61$]---weaker than its discrimination of answer correctness on the same
+episodes. Restricting to episodes with confidence $\geq 9$ leaves the missed-red-flag rate at
+$43.2\%$ and $36.2\%$, against base rates of $46.5\%$ and $39.4\%$.
+
+Decision-curve analysis makes the consequence explicit (Fig.~\ref{fig:dca}, left;
+Table~\ref{tab:dca}). Deferring the
+least-confident $22.4\%$ of red-flag cases reduces the missed-red-flag rate among retained cases by
+$3.3$ and $3.2$ percentage points. For the weaker model, raising the threshold further inverts the
+benefit: deferring $74.4\%$ of cases leaves the retained set \emph{worse} than no gating at all.
+
+\begin{table}[t]
+\caption{Decision-curve analysis on RedFlag-99. Deferral routes cases below the threshold to a
+clinician; the endpoint is the missed-red-flag rate among cases retained for autonomous handling.}
+\label{tab:dca}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrrr}
+\toprule
+Model & Threshold & Deferred & Missed rate & $\Delta$ vs.\ none \\
+\midrule
+\multirow{3}{*}{gpt-5.4-mini}
+ & none & 0.0\% & .465 & --- \\
+ & $\geq 9$ & 22.4\% & .432 & $-.033$ \\
+ & $\geq 10$ & 74.4\% & .474 & $+.009$ \\
+\midrule
+\multirow{3}{*}{gpt-5.4}
+ & none & 0.0\% & .394 & --- \\
+ & $\geq 9$ & 22.4\% & .362 & $-.032$ \\
+ & $\geq 10$ & 59.1\% & .346 & $-.048$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figs/fig2_decision_curves.pdf}
+\caption{Decision curves for confidence-gated deferral. Left: high-acuity static cases, endpoint
+``can't-miss diagnosis considered''. Right: interactive consultation, endpoint diagnostic accuracy.
+Dotted lines mark the no-deferral baseline. Note the order-of-magnitude difference in vertical
+scale: on high-acuity cases deferral buys a few points and, for the weaker model, becomes harmful
+beyond $60\%$ deferral; in interactive consultation the same mechanism on the same case material
+yields large, monotone gains.}
+\label{fig:dca}
+\end{figure*}
+
+\subsection{Interactive consultation restores discrimination}
+On the same 214 AgentClinic cases, presented interactively rather than as complete vignettes,
+confidence discriminates at $0.751$ [$0.713$, $0.787$] and $0.800$ [$0.759$, $0.840$], against
+$0.669$ and $0.689$ for the static presentation of the same cases. Deferral becomes useful: routing
+the least-confident $18.5\%$ raises accuracy of the retained set from $0.632$ to $0.715$, and
+routing $37.5\%$ raises it to $0.786$ (Fig.~\ref{fig:dca}, right; Table~\ref{tab:inter}). The stronger model shows the same
+pattern, from $0.727$ to $0.859$ at $24.8\%$ deferral.
+
+\begin{table}[t]
+\caption{Deferral value in interactive consultation, AgentClinic (214 cases $\times$ 3 seeds).}
+\label{tab:inter}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrrr}
+\toprule
+Model & Threshold & Deferred & Acc.\ retained & $\Delta$ \\
+\midrule
+\multirow{4}{*}{gpt-5.4-mini}
+ & none & 0.0\% & .632 & --- \\
+ & $\geq 8$ & 18.5\% & .715 & $+.083$ \\
+ & $\geq 9$ & 37.5\% & .786 & $+.153$ \\
+ & $\geq 10$ & 74.9\% & .857 & $+.225$ \\
+\midrule
+\multirow{4}{*}{gpt-5.4}
+ & none & 0.0\% & .727 & --- \\
+ & $\geq 8$ & 24.8\% & .859 & $+.132$ \\
+ & $\geq 9$ & 44.5\% & .896 & $+.169$ \\
+ & $\geq 10$ & 71.5\% & .907 & $+.180$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{What elicited confidence tracks}
+Confidence agrees across models more strongly than accuracy does: mean pairwise correlation of
+elicited confidence is $r=0.749$ across four models, against $r=0.646$ for correctness on the same
+items. Within model, confidence correlates with the stability of the model's own answer across
+operating points ($r=0.36$--$0.50$), and---critically---predicts equally well from \emph{another}
+model's answer stability ($r=0.30$--$0.34$), which rules out a within-episode circularity. Stability
+itself carries little information about correctness ($r=0.05$--$0.13$). Confidence is therefore a
+readout of answer convergence on an item, and convergence is only weakly related to being right.
+
+\section{Discussion}
+
+The practical conclusion is that ``is elicited confidence reliable?'' has no model-level answer. The
+same model, on clinically similar material, spans chance to strong discrimination depending on
+whether the item is at its capability frontier, whether it carries high clinical acuity, and whether
+it gathered the evidence itself. Reporting a single calibration figure for a clinical LLM is
+therefore not meaningful for deployment.
+
+Two consequences follow for system design. First, confidence-gated deferral cannot be validated on
+standard benchmark items and then deployed against high-acuity presentations: on exactly the cases
+that motivate the safety mechanism, gating recovers three percentage points of missed red flags for
+a $22\%$ clinician workload, and for a weaker model an aggressive threshold makes the retained set
+worse. Second, and in the opposite direction, static benchmark evaluation \emph{understates}
+confidence reliability for consultation agents. The interactive result is not a contradiction of the
+static one: if confidence tracks answer convergence, then a model that has actively obtained the
+discriminating finding converges for a reason, and its confidence inherits that reason. Evidence
+acquisition supplies information that a fully-specified vignette never requires the model to earn.
+
+That mechanism also explains why no elicitation format helps. All four formats read out the same
+underlying convergence signal, so rewording the question cannot manufacture information that the
+computation did not produce. It is consistent with general-domain findings that cross-model
+confidence is dominated by a shared item factor~\cite{metacog2026} and that overconfidence stems
+from insufficient conditioning on the model's own answer~\cite{advice2025}.
+
+\subsection{Limitations}
+No physician reviewed the RedFlag-99 items; construct validity rests on a pre-registered mechanical
+filter, automated annotation with reported reliability ($\kappa = 0.487$), and a sensitivity analysis
+on the unanimous subset. RedFlag-99 draws disproportionately from one source benchmark. The
+high-acuity condition was not evaluated interactively at adequate power, because only 13 of the 214
+AgentClinic vignettes carry a can't-miss diagnosis; that cell is reported descriptively and should
+not be over-read. Confidence was elicited jointly with the answer in a single response for the
+principal conditions, which is the deployment-realistic protocol but confounds elicitation with
+generation; the post-hoc format controls for this and shows no difference. One control dataset,
+GSM8K, is an outlier that we cannot explain: accuracy is high ($0.846$) but discrimination is near
+chance ($0.534$). We tested and rejected two accounts---answer format, since the free-response
+MedCalc set discriminates normally ($0.693$), and error type, since confidence discriminates
+execution slips and formula errors comparably (difference $+0.043$, CI $[-0.034, +0.119]$). A
+reported confound in which reasoning models re-solve the problem when asked about
+confidence~\cite{metacog2026} is a candidate we cannot test without access to reasoning traces.
+
+\section{Conclusion}
+Elicited confidence in clinical LLMs is not a stable property that can be measured once and relied
+upon. It discriminates well on routine items and in interactive consultation, and fails at the
+capability frontier and---beyond what difficulty predicts---on presentations carrying can't-miss
+diagnoses, where it is nearly uninformative about whether the critical diagnosis was considered at
+all. Deployments that gate on confidence should validate that gate in the modality and on the acuity
+stratum in which it will operate; a gate validated on standard benchmark questions provides no
+assurance for high-acuity cases.
+
+\section*{Data and Code Availability}
+All benchmarks are publicly available. Episode-level records, the RedFlag-99 probe with its
+construction pipeline and annotation, and analysis code are released with the paper.
+
+\begin{thebibliography}{99}
+\bibitem{agentclinic} S. Schmidgall \emph{et al.}, ``AgentClinic: a multimodal agent benchmark to evaluate AI in simulated clinical environments,'' \emph{npj Digital Medicine}, 2026.
+\bibitem{kadavath2022} Saurav Kadavath \emph{et al.}, ``Language Models (Mostly) Know What They Know,'' \emph{arXiv:2207.05221}, 2022.
+\bibitem{xiong2023} Miao Xiong \emph{et al.}, ``Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs,'' \emph{arXiv:2306.13063}, 2023.
+\bibitem{selfeval2023} Jiefeng Chen \emph{et al.}, ``Adaptation with Self-Evaluation to Improve Selective Prediction in LLMs,'' \emph{arXiv:2310.11689}, 2023.
+\bibitem{selfcal2025} Chengsong Huang \emph{et al.}, ``Efficient Test-Time Scaling via Self-Calibration,'' \emph{arXiv:2503.00031}, 2025.
+\bibitem{advice2025} Ki Jung Seo, Sehun Lim, Taeuk Kim, ``ADVICE: Answer-Dependent Verbalized Confidence Estimation,'' \emph{arXiv:2510.10913}, 2025.
+\bibitem{distractor2025} Victor Wang, Elias Stengel-Eskin, ``Calibrating Verbalized Confidence with Self-Generated Distractors,'' \emph{arXiv:2509.25532}, 2025.
+\bibitem{dca2025} Glenn Zhang \emph{et al.}, ``Direct Confidence Alignment: Aligning Verbalized Confidence with Internal Confidence In Large Language Models,'' \emph{arXiv:2512.11998}, 2025.
+\bibitem{orce2026} Chen Li \emph{et al.}, ``ORCE: Order-Aware Alignment of Verbalized Confidence in Large Language Models,'' \emph{arXiv:2605.12446}, 2026.
+\bibitem{latentconf2026} Ting-Yu Chen \emph{et al.}, ``Latent Confidence Alignment for LLM Self-Assessment,'' \emph{arXiv:2606.21937}, 2026.
+\bibitem{overconf2026} Mario Sanz-Guerrero, Manuel Mager, Katharina von der Wense, ``Large Language Models Are Overconfident in Their Own Responses,'' \emph{arXiv:2606.03437}, 2026.
+\bibitem{calsurvey2026} Noam Michael \emph{et al.}, ``Confidence Calibration in Large Language Models,'' \emph{arXiv:2605.23909}, 2026.
+\bibitem{mirror2026} Jason Z Wang, ``MIRROR: A Hierarchical Benchmark for Metacognitive Calibration in Large Language Models,'' \emph{arXiv:2604.19809}, 2026.
+\bibitem{metacog2026} M. Moran, Mark Whiting, ``LLMs Show No Signs Of Individuated Metacognition,'' \emph{arXiv:2605.24299}, 2026.
+\bibitem{introspect2026} Atharv Naphade \emph{et al.}, ``Me, Myself, and $\pi$: Evaluating and Explaining LLM Introspection,'' \emph{arXiv:2603.20276}, 2026.
+\bibitem{steermeta2026} Yanshi Li \emph{et al.}, ``Decomposing and Steering Functional Metacognition in Large Language Models,'' \emph{arXiv:2605.08942}, 2026.
+\bibitem{actionbelief2025} Arka Pal \emph{et al.}, ``Knowing What You Know Is Not Enough: Large Language Model Confidences Don't Align With Their Actions,'' \emph{arXiv:2511.13240}, 2025.
+\bibitem{trac2026} Dahai Yu \emph{et al.}, ``TrAC: Trace-Conditioned Answer Consistency for Efficient Uncertainty Quantification in LLMs,'' \emph{arXiv:2608.00422}, 2026.
+\bibitem{conformal2026} Charafeddine Mouzouni, ``Black-Box Reliability Certification for AI Agents via Self-Consistency Sampling and Conformal Calibration,'' \emph{arXiv:2602.21368}, 2026.
+\bibitem{cdur2026} Prakul Sunil Hiremath, Harshit R. Hiremath, ``Calibration Drift Under Reasoning: How Chain-of-Thought Budgets Induce Overconfidence in Large Language Models,'' \emph{arXiv:2606.11211}, 2026.
+\bibitem{tokenprob2026} Avery Ma \emph{et al.}, ``From token probabilities to calibrated confidence: An empirical study of mathematical question answering,'' \emph{arXiv:2608.07827}, 2026.
+\bibitem{sqlsel2026} Robert Richardson, ``What Predicts Correctness in Text-to-SQL? A Selective-Prediction Study,'' \emph{arXiv:2607.06799}, 2026.
+\bibitem{medagents} Yanjun Shao \emph{et al.}, ``MedicalAgentsBench for Complex Medical Reasoning: Comparing Internalized Reasoning Models versus Externalized Agent-based Frameworks,'' \emph{Patterns}, 2025.
+\bibitem{medcalc} Nikhil Khandekar \emph{et al.}, ``MedCalc-Bench: Evaluating Large Language Models for Medical Calculations,'' \emph{NeurIPS Datasets and Benchmarks}, 2024.
+\bibitem{m1_2025} Xiaoke Huang \emph{et al.}, ``m1: Unleash the Potential of Test-Time Scaling for Medical Reasoning with Large Language Models,'' \emph{arXiv:2504.00869}, 2025.
+\bibitem{ttsmed2025} Gyutaek Oh \emph{et al.}, ``Rethinking Test-Time Scaling for Medical AI: Model and Task-Aware Strategies for LLMs and VLMs,'' \emph{arXiv:2506.13102}, 2025.
+\bibitem{thinkshift2026} Sai Adith Senthil Kumar, ``When Built-in Thinking Helps and Hurts: Constraint-Level Error Shifts in Instruction Following,'' \emph{arXiv:2606.09662}, 2026.
+\bibitem{gastro2025} Nariman Naderi \emph{et al.}, ``Self-Reported Confidence of Large Language Models in Gastroenterology: Analysis of Commercial, Open-Source, and Quantized Models,'' \emph{arXiv:2503.18562}, 2025.
+\bibitem{promptmed2025} Nariman Naderi \emph{et al.}, ``Evaluating Prompt Engineering Techniques for Accuracy and Confidence Elicitation in Medical LLMs,'' \emph{arXiv:2506.00072}, 2025.
+\bibitem{safescale2026} Sebastian Wind \emph{et al.}, ``Safety and accuracy follow different scaling laws in clinical large language models,'' \emph{arXiv:2605.04039}, 2026.
+\bibitem{infoseek2026} Krischan Braitsch \emph{et al.}, ``Information-seeking failures of large language models in agentic clinical reasoning,'' \emph{arXiv:2607.10275}, 2026.
+\bibitem{residency2026} Valentin Liévin \emph{et al.}, ``ResidencyRL: Reinforcement Learning in Simulated Clinical Environments,'' \emph{arXiv:2608.07418}, 2026.
+\bibitem{triage2026} Reza Khanmohammadi, Kundan Thind, Mohammad M. Ghassemi, ``Calibrated Triage, Not Autonomy: Confidence Estimation for Medical Vision-Language Models,'' \emph{arXiv:2606.15910}, 2026.
+\bibitem{clinmm2026} Rui Yang \emph{et al.}, ``Evaluating Multi-Turn Multimodal Diagnostic Reasoning on Challenging Real-World Clinical Cases,'' \emph{arXiv:2607.25933}, 2026.
+\bibitem{premature2026} Rebecca Handler, Suhana Bedi, Nigam Shah, ``Quantifying and Mitigating Premature Closure in Frontier LLMs,'' \emph{arXiv:2605.15000}, 2026.
+\bibitem{drl2026} Jinsong Liu \emph{et al.}, ``Closing Reasoning Gaps in Clinical Agents with Differential Reasoning Learning,'' \emph{arXiv:2602.09945}, 2026.
+\bibitem{ophtha2026} Ehsan Misaghi \emph{et al.}, ``Deliberative multi-agent large language models improve clinical reasoning in ophthalmology,'' \emph{arXiv:2603.21447}, 2026.
+\bibitem{realicu2026} Chengzhi Shen \emph{et al.}, ``RealICU: Do LLM Agents Understand Long-Context ICU Data? A Benchmark Beyond Behavior Imitation,'' \emph{arXiv:2605.13542}, 2026.
+\end{thebibliography}
+
+\end{document}
