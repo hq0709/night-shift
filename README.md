@@ -16,7 +16,8 @@ it exists to catch.
 ## Layout
 
 ```
-paper/     main.tex, main.pdf, figures
+main.tex   manuscript (root level, for Overleaf GitHub sync)
+figs/      figures
 src/
   common/llm.py            unified OpenAI+Anthropic client: disk cache, retry, cost ledger
   budgets/dial.py          effort/budget control across provider APIs; 429-aware backoff
@@ -63,5 +64,5 @@ review.
 ## Building the paper
 
 ```bash
-tectonic -X compile paper/main.tex
+tectonic -X compile main.tex
 ```
