@@ -106,7 +106,7 @@ give ECE alongside it, and make the deployment consequence explicit through deci
 \item We identify what elicited confidence in clinical models reports, by removing and restoring the
 single item a case requires and observing what moves. Stated confidence tracks the removal; its
 ability to discriminate correct from incorrect answers does not. The result holds for a diagnostic
-finding and for a computational input, on two models, and is the paper's central claim.
+finding and for a computational input, on three models, and is the paper's central claim.
 \item We show this account predicts where confidence works and where it fails, rather than merely
 describing it: discrimination is strong in interactive consultation, where the model may simply not
 have asked, and at chance at the capability frontier, where the information is present and the
@@ -548,18 +548,21 @@ costs. On MedCalc, where the removed value makes the calculation unanswerable, a
 $41$ points and mean stated confidence by $3.5$ points on a ten-point scale. On AgentClinic, where
 the case remains answerable without the key finding, accuracy falls by $9$ points and confidence by
 $0.5$. The model therefore registers not merely that something is absent but roughly how much its
-absence matters, and it does so consistently across both models tested.
+absence matters, and it does so consistently across all three models tested,
+which span two orders of magnitude of scale.
 
-Discrimination does not follow. In three of the four cells the change is indistinguishable from zero
-($+.006$, $-.061$, $+.028$), and in the fourth the interval only barely excludes it
+Discrimination does not follow. In four of the five cells the change is indistinguishable from zero
+($+.006$, $-.061$, $+.054$, $+.028$), and in the fifth the interval only barely excludes it
 ($+.064$ $[+.001,+.130]$); restoring information worth $41$ points of accuracy buys at most $0.06$
 AUROC. A signal that moves by $3.5$ points when the required input is removed, while its ability to
 separate right answers from wrong ones does not move, is reporting the availability of the input and
 not the correctness of the conclusion drawn from it (Table~\ref{tab:evidence}).
 
 One contrast does move discrimination. Requiring the model to obtain the finding through its own
-action, rather than receiving it, adds $+.107$ $[+.008,+.204]$ on \texttt{gpt-5.4} and a
-non-significant $+.039$ on the smaller model. Evidence \emph{agency}, unlike evidence
+action, rather than receiving it, adds $+.107$ $[+.008,+.204]$ on \texttt{gpt-5.4} and
+non-significant increments of $+.039$ and $+.049$ on the two smaller models---the same sign
+throughout, reaching significance only where the model is strong enough for its own actions to be
+informative. Evidence \emph{agency}, unlike evidence
 \emph{availability}, leaves a trace in the confidence signal---consistent with the interpretation
 below, since a model that had to ask has direct evidence about what it does and does not hold.
 
@@ -904,8 +907,8 @@ Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 \end{table}
 
 \begin{table}[t]
-\caption{The central experiment: removing and restoring the single item a case requires, across two
-models and two clinical task types. In AgentClinic the removed item is the key diagnostic finding,
+\caption{The central experiment: removing and restoring the single item a case requires, across three
+models spanning two orders of magnitude of scale and two clinical task types. In AgentClinic the removed item is the key diagnostic finding,
 which leaves the case harder but answerable; in MedCalc it is a numerically required laboratory
 value, without which the calculation cannot be performed. Stated confidence tracks the severity of
 the deficiency---$3.5$ points where the case becomes unanswerable, $0.5$ where it remains
@@ -936,10 +939,15 @@ Task & Model & Acc. & Conf. & \multicolumn{2}{l}{AUROC [95\% CI]} \\
 & \multirow{2}{*}{gpt-5.4} & .811 & 8.81 & .755 & [.690, .817] \\
 & & .897 & 9.36 & .692 & [.609, .774] \\
 & \multicolumn{2}{r}{$\Delta$ restored} & $+.086$ / $+0.55$ & $-.061$ & [$-.167$, $+.042$] \\
+\cmidrule(l){2-6}
+& \multirow{2}{*}{gpt-5.4-nano} & .729 & 7.09 & .738 & [.686, .787] \\
+& & .834 & 7.77 & .792 & [.739, .845] \\
+& \multicolumn{2}{r}{$\Delta$ restored} & $+.105$ / $+0.68$ & $+.054$ & [$-.022$, $+.128$] \\
 \midrule
 \multicolumn{6}{l}{\emph{Evidence agency, AgentClinic (acquired on request vs.\ given)}}\\
 & gpt-5.4-mini & \multicolumn{2}{r}{} & $+.039$ & [$-.039$, $+.118$] \\
 & gpt-5.4 & \multicolumn{2}{r}{} & $\mathbf{+.107}$ & [$+.008$, $+.204$] \\
+& gpt-5.4-nano & \multicolumn{2}{r}{} & $+.049$ & [$-.015$, $+.114$] \\
 \bottomrule
 \end{tabular}}
 \end{table}
