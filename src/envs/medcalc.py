@@ -29,6 +29,7 @@ def load(n: int | None = None, seed: int = 0) -> list[dict]:
             "gold": str(r["Ground Truth Answer"]),
             "lo": r.get("Lower Limit"), "hi": r.get("Upper Limit"),
             "explanation": str(r.get("Ground Truth Explanation", "")),
+            "entities": r.get("Relevant Entities"),
         })
     if n:
         rng = random.Random(seed)

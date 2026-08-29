@@ -41,12 +41,15 @@ diagnoses, discrimination of answer correctness degrades beyond what difficulty 
 ($\Delta$AUROC $-0.082$ and $-0.063$ against accuracy-matched controls) while discrimination of
 whether the can't-miss diagnosis was entertained remains intact ($0.687$/$0.667$); the two endpoints
 a clinical gate must serve therefore do not degrade together. When the model gathers its own evidence
-through multi-turn consultation, discrimination rises to $0.75$/$0.80$. A causal manipulation identifies what the signal
-is: removing, restoring, or requiring the model to request the single discriminating finding changes
-accuracy by $9.1$ points and the committed diagnosis on $36\%$ of cases, yet leaves discrimination
-unchanged across all three conditions. Confidence instead separates episodes in which the model
-obtained that finding from those in which it did not ($\mathrm{AUC}=0.661$), and discriminates
-correctness \emph{better} among episodes where it was missing. Elicited confidence therefore reports
+through multi-turn consultation, discrimination rises to $0.75$/$0.80$. A causal manipulation, replicated across two models and two task
+types, identifies what the signal is. Removing, restoring, or requiring the model to request the
+single decisive item changes accuracy by $9$ points on diagnostic vignettes and by $41$ points on
+calculations---where removal makes the item unanswerable---and moves stated confidence by $3.6$
+points, yet leaves discrimination statistically unchanged throughout. Confidence instead separates episodes in which the model obtained
+that item from those in which it did not ($\mathrm{AUC}=0.661$), and discriminates correctness
+\emph{better} among episodes where it was missing. Only evidence \emph{agency}---the model having
+obtained the item through its own action---adds discrimination, and only on the stronger model
+($+0.107$). Elicited confidence therefore reports
 an information state, not an answer state; it is informative exactly where insufficient information
 is the dominant error mode and uninformative where errors are failures of knowledge. The practical
 consequence is quantified: a deferral threshold meeting an $0.85$ service level in validation returns
@@ -1019,11 +1022,11 @@ Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 
 
 \begin{table}[t]
-\caption{Causal manipulation of the evidence available to the model, \texttt{gpt-5.4-mini}, 214
-AgentClinic cases $\times$ 2 seeds. The single key discriminating finding is removed, restored, or
-made available only on request. The manipulation works---restoring it raises accuracy by $9.1$
-points and changes the committed diagnosis on $36.4\%$ of paired cases---yet discrimination is
-unchanged across all three conditions.}
+\caption{Causal manipulation of the evidence available to the model, replicated across two models
+and two task types. In AgentClinic the removed item is the key diagnostic finding; in MedCalc it is
+a numerically required computational input, whose removal makes the item unanswerable rather than
+merely harder. Every manipulation moves accuracy and stated confidence substantially; none moves
+discrimination, with the single exception of evidence \emph{agency} on the stronger model.}
 \label{tab:evidence}
 \centering
 \small
@@ -1036,10 +1039,21 @@ Withheld & 428 & .764 & 8.96 & .000 & .727 [.669, .782] \\
 Given & 428 & .855 & 9.43 & 1.000 & .732 [.661, .798] \\
 Acquired on request & 428 & .629 & 8.56 & .463 & .769 [.723, .814] \\
 \midrule
-\multicolumn{6}{l}{\emph{Pairwise differences (bootstrap)}}\\
-Given $-$ Withheld & & & & & $+.006$ [$-.081$, $+.094$] \\
-Acquired $-$ Given & & & & & $+.039$ [$-.039$, $+.118$] \\
-Acquired $-$ Withheld & & & & & $+.044$ [$-.026$, $+.117$] \\
+\midrule
+\multicolumn{6}{l}{\emph{\texttt{gpt-5.4}, same cases}}\\
+Withheld & 428 & .811 & 8.81 & .000 & .755 [.691, .815] \\
+Given & 428 & .897 & 9.36 & 1.000 & .693 [.606, .777] \\
+Acquired on request & 428 & .736 & 8.36 & .489 & .801 [.750, .850] \\
+\midrule
+\multicolumn{6}{l}{\emph{MedCalc: a required computational input removed}}\\
+Withheld & 467 & .302 & 5.72 & .000 & .728 [.681, .774] \\
+Given & 466 & .712 & 9.30 & 1.000 & .792 [.746, .835] \\
+\midrule
+\multicolumn{6}{l}{\emph{Pairwise differences in AUROC (bootstrap)}}\\
+AgentClinic, mini: Given $-$ Withheld & & & & & $+.006$ [$-.081$, $+.094$] \\
+AgentClinic, gpt-5.4: Given $-$ Withheld & & & & & $-.062$ [$-.168$, $+.041$] \\
+MedCalc, mini: Given $-$ Withheld & & & & & $+.062$ [$-.001$, $+.126$] \\
+AgentClinic, gpt-5.4: Acquired $-$ Given & & & & & $\mathbf{+.107}$ [$+.008$, $+.204$] \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1058,6 +1072,23 @@ $0.727$, $0.732$ and $0.769$ across the three conditions, with every pairwise in
 zero (Table~\ref{tab:evidence}). Making the decisive evidence available does not make elicited
 confidence better at separating right answers from wrong ones, and neither does requiring the model
 to obtain it itself.
+
+
+The result replicates on \texttt{gpt-5.4} over the same cases: supplying the key finding raises
+accuracy from $0.811$ to $0.897$ while discrimination does not improve ($-0.062$
+$[-0.168,+0.041]$). On that model the agency contrast is significant, however---acquiring the
+finding through the model's own action rather than receiving it yields $+0.107$ $[+0.008,+0.204]$---so
+what the model did, rather than what it was given, carries some information about correctness for
+the stronger model. The weaker model shows the same sign at half the size and without significance.
+
+The sharpest version of the manipulation is on MedCalc, where the removed item is a numerically
+required input rather than a diagnostic clue, and its removal makes the calculation unanswerable
+rather than merely harder. Accuracy falls from $0.712$ to $0.302$ and mean stated confidence from
+$9.30$ to $5.72$: the model registers the deficiency clearly and reports it. Discrimination moves by
+$+0.062$ $[-0.001,+0.126]$, which does not exclude zero. A signal that responds to a $3.6$-point
+drop in available information while barely responding to a $41$-point drop in accuracy is measuring
+the former, not the latter---which is the claim of this section stated as directly as the data
+permit.
 
 Two further observations locate what the signal is. First, within the acquired condition, confidence
 distinguishes episodes in which the model actually obtained the key finding from those in which it
