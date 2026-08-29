@@ -1,0 +1,170 @@
+[
+ {
+  "contrast": "removal moves confidence",
+  "cell": "MedCalc / gpt-5.4-mini",
+  "est": "+3.587",
+  "test": "Wilcoxon signed-rank",
+  "p": 4.049763693975594e-59,
+  "p_holm": 6.074645540963391e-58
+ },
+ {
+  "contrast": "removal moves accuracy",
+  "cell": "MedCalc / gpt-5.4-mini",
+  "est": "+0.411",
+  "test": "Wilcoxon signed-rank",
+  "p": 2.4010695171325745e-35,
+  "p_holm": 2.8812834205590894e-34
+ },
+ {
+  "contrast": "removal moves confidence",
+  "cell": "MedCalc / gpt-5.4",
+  "est": "+3.494",
+  "test": "Wilcoxon signed-rank",
+  "p": 4.7130425699656695e-58,
+  "p_holm": 6.598259597951937e-57
+ },
+ {
+  "contrast": "removal moves accuracy",
+  "cell": "MedCalc / gpt-5.4",
+  "est": "+0.408",
+  "test": "Wilcoxon signed-rank",
+  "p": 8.820531935629015e-38,
+  "p_holm": 1.146669151631772e-36
+ },
+ {
+  "contrast": "removal moves confidence",
+  "cell": "AgentClinic / gpt-5.4-mini",
+  "est": "+0.465",
+  "test": "Wilcoxon signed-rank",
+  "p": 3.4614820473712206e-23,
+  "p_holm": 3.1153338426340984e-22
+ },
+ {
+  "contrast": "removal moves accuracy",
+  "cell": "AgentClinic / gpt-5.4-mini",
+  "est": "+0.091",
+  "test": "Wilcoxon signed-rank",
+  "p": 3.8270015296829125e-07,
+  "p_holm": 2.2962009178097474e-06
+ },
+ {
+  "contrast": "removal moves confidence",
+  "cell": "AgentClinic / gpt-5.4",
+  "est": "+0.551",
+  "test": "Wilcoxon signed-rank",
+  "p": 1.0424593756183134e-26,
+  "p_holm": 1.1467053131801449e-25
+ },
+ {
+  "contrast": "removal moves accuracy",
+  "cell": "AgentClinic / gpt-5.4",
+  "est": "+0.086",
+  "test": "Wilcoxon signed-rank",
+  "p": 3.47524149846351e-08,
+  "p_holm": 2.780193198770808e-07
+ },
+ {
+  "contrast": "removal moves confidence",
+  "cell": "AgentClinic / gpt-5.4-nano",
+  "est": "+0.678",
+  "test": "Wilcoxon signed-rank",
+  "p": 6.65696345326923e-26,
+  "p_holm": 6.65696345326923e-25
+ },
+ {
+  "contrast": "removal moves accuracy",
+  "cell": "AgentClinic / gpt-5.4-nano",
+  "est": "+0.105",
+  "test": "Wilcoxon signed-rank",
+  "p": 2.924852902492508e-07,
+  "p_holm": 2.0473970317447554e-06
+ },
+ {
+  "contrast": "frontier vs standard",
+  "cell": "gpt-5.4-mini",
+  "est": "+0.207",
+  "test": "permutation",
+  "p": 0.00024993751562109475,
+  "p_holm": 0.0012496875781054738
+ },
+ {
+  "contrast": "frontier vs standard",
+  "cell": "gpt-5.4",
+  "est": "+0.163",
+  "test": "permutation",
+  "p": 0.00024993751562109475,
+  "p_holm": 0.0012496875781054738
+ },
+ {
+  "contrast": "static vs interactive",
+  "cell": "gpt-5.4-mini",
+  "est": "+0.083",
+  "test": "permutation",
+  "p": 0.010247438140464884,
+  "p_holm": 0.020494876280929768
+ },
+ {
+  "contrast": "static vs interactive",
+  "cell": "gpt-5.4",
+  "est": "+0.111",
+  "test": "permutation",
+  "p": 0.0029992501874531365,
+  "p_holm": 0.00899775056235941
+ },
+ {
+  "contrast": "dose lowers confidence",
+  "cell": "gpt-5.4-mini",
+  "est": "rho -0.582",
+  "test": "Spearman",
+  "p": 8.935930436499593e-63,
+  "p_holm": 1.4297488698399349e-61
+ },
+ {
+  "contrast": "dose does NOT move AUROC (1 vs 3)",
+  "cell": "gpt-5.4-mini",
+  "est": "+0.015",
+  "test": "permutation",
+  "p": 0.8062984253936516,
+  "p_holm": 0.8062984253936516
+ },
+ {
+  "contrast": "removal does NOT move AUROC",
+  "cell": "MedCalc / gpt-5.4-mini",
+  "est": "+0.062 [+0.011,+0.117]",
+  "test": "TOST, margin 0.1",
+  "p": 0.12025,
+  "p_holm": 0.32025
+ },
+ {
+  "contrast": "removal does NOT move AUROC",
+  "cell": "MedCalc / gpt-5.4",
+  "est": "+0.029 [-0.024,+0.080]",
+  "test": "TOST, margin 0.1",
+  "p": 0.01,
+  "p_holm": 0.05
+ },
+ {
+  "contrast": "removal does NOT move AUROC",
+  "cell": "AgentClinic / gpt-5.4-mini",
+  "est": "+0.006 [-0.068,+0.082]",
+  "test": "TOST, margin 0.1",
+  "p": 0.0185,
+  "p_holm": 0.074
+ },
+ {
+  "contrast": "removal does NOT move AUROC",
+  "cell": "AgentClinic / gpt-5.4",
+  "est": "-0.059 [-0.146,+0.030]",
+  "test": "TOST, margin 0.1",
+  "p": 0.21975,
+  "p_holm": 0.32025
+ },
+ {
+  "contrast": "removal does NOT move AUROC",
+  "cell": "AgentClinic / gpt-5.4-nano",
+  "est": "+0.054 [-0.006,+0.115]",
+  "test": "TOST, margin 0.1",
+  "p": 0.10675,
+  "p_holm": 0.32025
+ }
+]

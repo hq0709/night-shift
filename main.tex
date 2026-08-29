@@ -33,13 +33,14 @@ model has the information it needs. In a causal manipulation replicated across t
 clinical task types, we remove a single item a case requires---a key diagnostic finding, or a
 laboratory value without which a calculation cannot be performed---and restore it. Removal moves
 accuracy by $9$ points on diagnostic vignettes and $41$ on calculations, and moves stated confidence
-by up to $3.6$ points, so the model registers the deficiency; it does not move that confidence's
-ability to separate correct answers from incorrect ones in any condition tested. Grading the
+by up to $3.6$ points, so the model registers the deficiency. Its ability to separate correct answers
+from incorrect ones does not move detectably in any of the five cells, with every interval bounded
+inside $\pm.17$ AUROC. Grading the
 manipulation separates the two responses further: removing one, two and three required inputs lowers
 confidence monotonically, within item for $95\%$ of items, and lowers accuracy from $0.73$ to
 $0.25$, while discrimination is unchanged across the three levels ($+.014$ $[-.089,+.112]$). The
 consequence is that a confidence gate catches information gaps and not knowledge errors. Across
-$\sim$33{,}200 episodes, five models and seven evaluation sets, discrimination is strong where
+$\sim$34{,}200 episodes, five models and seven evaluation sets, discrimination is strong where
 insufficiency dominates---interactive consultation, $0.75$--$0.80$---and at chance where the
 information is complete and the error is one of knowledge ($0.48$--$0.54$). A deferral threshold
 meeting an $0.85$ service level in validation returns $0.35$--$0.50$ at the capability frontier while
@@ -73,25 +74,35 @@ remain informative on the cases where being wrong is most consequential?}
 
 \subsection{Why the clinical case is different}
 A safety mechanism that works on average but fails on the hardest cases is worse than no mechanism,
-because it produces false assurance exactly where assurance is unwarranted. Two features of clinical
-deployment have no analogue in benchmark evaluation. First, a clinical case has a determinate
-information requirement: a diagnosis turns on a specific finding, a dose on a specific laboratory
-value. That makes it possible to ask what confidence responds to, by removing exactly what the case
-needs---an experiment general-knowledge benchmarks do not admit, because there is no defined item to
-remove. Second, a consultation agent does not receive a fully specified vignette; it decides what history
-to take and which tests to order, and is therefore responsible for the evidence on which its own
-confidence rests. Whether confidence measured in the first setting transfers to the second is an
-empirical question that has not been asked.
+because it produces false assurance exactly where assurance is unwarranted. Whether that describes
+confidence gating cannot be settled by measuring calibration more carefully; it requires knowing what
+the confidence is a report \emph{of}. Two features of the clinical setting make that question
+answerable here and not on general benchmarks.
+
+First, a clinical case has a determinate information requirement: a diagnosis turns on a specific
+finding, a dose on a specific laboratory value. One can therefore remove exactly what the case needs
+and observe what moves---an intervention rather than a correlation. General-knowledge benchmarks do
+not admit it, because there is no defined item whose removal makes the question unanswerable rather
+than merely different.
+
+Second, clinical deployment spans two regimes that make opposite demands on such a signal. A
+consultation agent does not receive a fully specified vignette; it decides what history to take and
+which tests to order, and is therefore responsible for the evidence its own confidence rests on. A
+system reading a completed record is not, and its residual errors are of a different kind. Whether a
+gate validated in one regime holds in the other is an empirical question that has not been asked, and
+Section~V-N shows it has a price.
 
 \subsection{Scope of this study}
-We evaluate elicited confidence under three conditions that matter clinically and are absent from
-prior general-domain work: (i) at the model's capability frontier, where accuracy approaches chance; (ii) on complete
-diagnostic vignettes and procedural calculations at standard difficulty; and (iii) in interactive
-consultation, where the model is responsible for gathering its own evidence. We
-hold the elicitation protocol byte-identical across all conditions, so that any difference in
-discrimination is attributable to the condition rather than to how the question was asked, and we
-control for the two artifacts that could produce our result spuriously---class balance and response
-format.
+The study is organised around one intervention and its consequences. We manipulate the information a
+case supplies---withheld, supplied, or obtainable only by the model's own action---on two clinical
+task types, and grade the manipulation by amount removed. We then evaluate the resulting account
+against three deployment regimes that differ in what makes the model wrong: the capability frontier,
+where the vignette is complete and the error is one of knowledge; complete vignettes and procedural
+calculations at standard difficulty; and interactive consultation, where the model must obtain its
+own evidence. The elicitation protocol is byte-identical across all of them, so a difference in
+discrimination is attributable to the regime rather than to how the question was asked, and we
+control for the artifacts that could produce the result spuriously---class balance, response format,
+elicitation position, response scale, and the scoring rule for free-text diagnoses.
 
 \subsection{Measurement choice}
 Calibration in clinical machine learning is usually summarised by expected calibration error, and a
@@ -108,7 +119,8 @@ give ECE alongside it, and make the deployment consequence explicit through deci
 \begin{itemize}
 \item We identify what elicited confidence in clinical models reports, by removing and restoring the
 single item a case requires and observing what moves. Stated confidence tracks the removal; its
-ability to discriminate correct from incorrect answers does not. The result holds for a diagnostic
+ability to discriminate correct from incorrect answers does not shift detectably, and is bounded
+inside $\pm.17$ AUROC in every cell. The result holds for a diagnostic
 finding and for a computational input, on three models, and is the paper's central claim. Grading
 the manipulation sharpens it: removing one, two and three required inputs lowers stated confidence
 monotonically---within item, for $95\%$ of items---while leaving discrimination unchanged across the
@@ -167,11 +179,9 @@ sampling~\cite{conformal2026}, or reasoning-conditioned estimates~\cite{cdur2026
 ahead of time~\cite{fuelgauge2026}, distil black-box uncertainty~\cite{advdistill2026}, aggregate
 evidence in a Dirichlet framework~\cite{direag2026}, make elicitation noise-aware for
 retrieval-augmented settings~\cite{nova2026}, and evaluate calibration by semantic
-sampling~\cite{semsamp2026}. Selective prediction with such signals has also been studied for code
-generation~\cite{codeunc2026} and paired with uncertainty-aware deferral at the
-edge~\cite{deferedge2026}. Selective
-prediction with such signals has been studied for code~\cite{sqlsel2026} and, in the medical
-setting, for vision-language triage~\cite{triage2026}. We evaluate the two cheapest behavioral
+sampling~\cite{semsamp2026}. Selective prediction on these signals has been studied for
+code~\cite{codeunc2026,sqlsel2026}, for deferral at the edge~\cite{deferedge2026}, and for
+vision-language triage in the medical setting~\cite{triage2026}. We evaluate the two cheapest behavioral
 alternatives---sampling self-consistency and cross-model agreement---and find neither recovers
 discrimination at the capability frontier.
 
@@ -191,7 +201,7 @@ laws across deployment conditions including inference-time compute, and that con
 concentrate in a small subset of items---motivating our stratification by clinical risk rather than
 by average performance. Failure-mode analyses of clinical agents identify information-seeking
 failure, anchoring, and premature closure~\cite{infoseek2026,premature2026,clinmm2026}, and
-and ResidencyRL~\cite{residency2026} establishes missed-red-flag rate as a headline safety endpoint.
+ResidencyRL~\cite{residency2026} establishes missed-red-flag rate as a headline safety endpoint.
 That line of work measures how often clinical models fail; we ask whether the models' own stated
 confidence anticipates it. Reasoning-model behaviour on medical tasks has been characterised
 directly~\cite{r1med2025}, and agentic scaffolding studied for diagnostic
@@ -233,7 +243,7 @@ concentrated at high effort and would invert the direction of any effort-related
 condition differs in difficulty rather than in kind, is the reason every cross-condition contrast is
 made against accuracy-matched controls (Section~IV-D) rather than against raw sets.
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Models evaluated. Vendor, scale and architecture are varied so that a condition effect
 cannot be attributed to any one of them. Operating points are those surviving the separation test of
 Section~IV-B.}
@@ -254,7 +264,7 @@ Model & Vendor & Tier & Reasoning & Operating points \\
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Interactive versus static presentation of the same 214 AgentClinic cases,
 \texttt{gpt-5.4-mini}. Evidence acquisition changes what the confidence signal is worth; the case
 material, gold labels and elicitation schema are identical.}
@@ -404,11 +414,15 @@ are both correlated with the experimental factor and would bias the endpoint if 
 silently counted as wrong.
 
 \subsection{Uncertainty quantification}
-All intervals are bootstrap percentile intervals over $B=4000$ episode-level resamples. For
-model-level comparisons the resampling unit is the item, since episodes of the same item are not
-independent. Contrasts between experimental
-conditions on the same items---the removal manipulation and its graded form---resample items rather
-than episodes, so the interval reflects the repeated-measures design.
+All intervals are percentile bootstraps over $B=4000$ resamples. The resampling unit is the episode
+for endpoints computed over episodes and the item elsewhere, since episodes of one item under
+different operating points are not independent; contrasts between conditions evaluated on the same
+items resample items, so the interval reflects the repeated-measures design. Difference claims are
+tested by Wilcoxon signed-rank where paired and by permutation on the condition label where not.
+Because a confidence interval containing zero is not evidence of no effect, claims of \emph{no}
+difference are tested by two one-sided tests against an equivalence margin of $0.10$ AUROC, fixed in
+advance. Difference and equivalence tests are Holm-corrected as separate families
+(Section~V-M).
 
 \section{Experiment Configurations}
 
@@ -446,7 +460,7 @@ answer rather than eliminating it, so the mode is not the bottom of the same sca
 Table~\ref{tab:data} summarises the evaluation sets. Difficulty is manipulated within corpus by
 using the hard and standard splits of the same sources, so difficulty is not confounded with domain.
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Evaluation sets. Difficulty is varied within corpus (hard versus standard split of the same
 sources) so that difficulty is not confounded with domain. Episodes are the analysed units; items
 appear at several operating points and seeds.}
@@ -479,16 +493,6 @@ point, so grids were scheduled in token-minutes rather than call counts. Running
 concurrently, which draw on independent rate limits, raised sustained throughput to about $68$
 episodes per minute. All results are reproducible from the cache without further expenditure.
 
-\subsection{Statistical reporting}
-Every interval reported is a percentile bootstrap over $B=4000$ resamples. For endpoints computed
-over episodes the resampling unit is the episode; for model-level correlations and for onset
-comparisons it is the item, since episodes of one item under different operating points are
-dependent. Where a difference between two conditions is claimed, the claim is made on the basis of
-one estimate falling outside the other's interval rather than on non-overlap of two intervals, which
-is the more conservative of the two conventions. No multiplicity correction is applied to the
-primary endpoint because a single quantity is reported per condition; the per-family trend tests
-used in the supplementary analyses are Holm-corrected across families.
-
 \subsection{Evaluation criteria}
 Answers are extracted from the structured response; parse rate is $1.000$ across all reported
 conditions. Multiple-choice items are scored by option identity, free-response numeric items against
@@ -499,21 +503,23 @@ reported separately rather than being scored as errors.
 \section{Results}
 
 The central experiment is presented first. Section~V-A removes and restores the single item a case
-requires and reports what moves; Section~V-B grades the manipulation, removing one, two and three
-required inputs; Section~V-C states what the surviving signal is. Sections~V-D--E show that this
-account predicts where confidence works and where it fails. Sections~V-F--I remove the artifacts that
-could produce those observations spuriously, and Section~V-J gives the deployment consequence.
+requires and reports what moves; Section~V-B shows three episode pairs verbatim; Section~V-C grades
+the manipulation, removing one, two and three required inputs; and Section~V-D states what the
+surviving signal is. Sections~V-E--F show that this account predicts where confidence works and where
+it fails. Sections~V-G--L remove the artifacts that could produce those observations spuriously---
+including the possibility that the failure is one of verbalization rather than of information
+(Section~V-H)---Section~V-M reports the significance and equivalence tests, and Section~V-N gives the
+deployment consequence.
 
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figs/fig0_core.pdf}
-\caption{The central result. Restoring the single item a case requires moves accuracy (left) and
-stated confidence (centre) by amounts graded to how much the removal cost---large where the case was
-rendered unanswerable, small where it remained answerable---while leaving discrimination
-statistically unmoved (right; bars are $95\%$ bootstrap intervals on $\Delta$AUROC, four of five
-containing zero). Elicited confidence tracks what the model is missing, not whether its answer is
-right.}
+\caption{The central result. Restoring the single item a case requires moves accuracy (a) and stated
+confidence (b) by amounts graded to how much the removal cost---large where the case was rendered
+unanswerable, small where it remained answerable---while leaving discrimination statistically
+unmoved (c; bars are $95\%$ bootstrap intervals on $\Delta$AUROC, all five containing zero). Elicited
+confidence tracks what the model is missing, not whether its answer is right.}
 \label{fig:core}
 \end{figure*}
 
@@ -533,10 +539,14 @@ $0.5$. The model therefore registers not merely that something is absent but rou
 absence matters, and it does so consistently across all three models tested,
 which span two orders of magnitude of scale.
 
-Discrimination does not follow. In four of the five cells the change is indistinguishable from zero
-($+.006$, $-.061$, $+.054$, $+.028$), and in the fifth the interval only barely excludes it
-($+.064$ $[+.001,+.130]$); restoring information worth $41$ points of accuracy buys at most $0.06$
-AUROC. A signal that moves by $3.5$ points when the required input is removed, while its ability to
+Discrimination does not follow. Every interval contains zero
+($+.006$, $-.059$, $+.054$, $+.029$, $+.062$), and the one that comes closest to excluding it---the
+MedCalc contrast on \texttt{gpt-5.4-mini}, $+.062$ $[-.000,+.127]$---has a lower bound that changes
+sign with the resampling seed, so we do not read it as a positive result. The bound rather than the
+point estimate is the finding: restoring information worth $41$ points of accuracy shifts
+discrimination by no more than $.17$ in either direction across all five cells, and by no more than
+$.13$ in the direction that would favour it. Section~V-M reports this as an equivalence test and
+states what it does and does not establish. A signal that moves by $3.5$ points when the required input is removed, while its ability to
 separate right answers from wrong ones does not move, is reporting the availability of the input and
 not the correctness of the conclusion drawn from it (Table~\ref{tab:evidence}).
 
@@ -564,6 +574,21 @@ error is one of knowledge.
 
 \begin{figure*}[t]
 \centering
+\includegraphics[width=0.96\textwidth]{figs/fig_cases.pdf}
+\caption{Three episode pairs from the removal manipulation, verbatim, \texttt{gpt-5.4-mini}. Each row
+is one case under the two conditions; the committed diagnosis, the top of the elicited differential,
+and the stated confidence are shown as recorded. (a) The removal creates a gap the signal reports:
+without the barium enema the model commits to constipation at $7/10$, with it to the reference
+diagnosis at $10/10$. (b) The removal is not what makes the model wrong: restoring the platelet count
+brings the reference diagnosis into the differential but the model still commits elsewhere, at the
+same $9/10$ both times. (c) The pattern the paper is about: the confidence moves by two points while
+the answer stays correct in both conditions---the signal is reporting the information state, not the
+answer.}
+\label{fig:cases}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
 \includegraphics[width=0.94\textwidth]{figs/fig_dose.pdf}
 \caption{Dose--response on MedCalc, \texttt{gpt-5.4-mini}, on the $85$ items carrying at least three
 removable required inputs, so that every dose level is evaluated on the same items. (a) Stated
@@ -574,6 +599,26 @@ respond to the amount removed at all (shaded region), though it does fall at the
 from a complete note.}
 \label{fig:dose}
 \end{figure*}
+
+\subsection{Three episodes, verbatim}
+The quantities above are averages over conditions; Fig.~\ref{fig:cases} shows what a single episode
+pair looks like, chosen to illustrate the three regimes the account predicts.
+
+In the first, removal is the reason the model is wrong, and its confidence says so: the barium enema
+is what distinguishes Hirschsprung disease from functional constipation, and without it the model
+commits to constipation at $7/10$ while listing the reference diagnosis second. Restored, it commits
+correctly at $10/10$.
+
+The second is the case that a confidence gate cannot catch. The model is wrong in both conditions,
+and states $9/10$ in both. Restoring the platelet count does bring thrombotic thrombocytopenic
+purpura into the elicited differential---the information was received and used---but the model still
+commits to a tropical infection. The error is one of weighting evidence already in hand, and nothing
+in the stated confidence distinguishes this episode from the one above.
+
+The third is the paper's claim in a single case. Anoscopy findings move the confidence from $8$ to
+$10$ while the committed diagnosis is correct either way. The two points of confidence buy no
+correctness because there was none to buy; they report that the model now has what the case calls
+for.
 
 \subsection{Confidence responds to how much is missing, discrimination does not}
 The manipulation above is binary. If elicited confidence reports an information state, the response
@@ -618,7 +663,7 @@ readout of answer convergence on an item, and convergence is only weakly related
 To test whether the account of Sections~V-A and V-B predicts where confidence is usable, we evaluate
 the same models across conditions that differ in whether error arises from missing information or
 from missing knowledge.
-Fig.~\ref{fig:disc} and Fig.~\ref{fig:disc}, Fig.~\ref{fig:dist} and Table~\ref{tab:main} report the primary endpoint across all conditions. Within a single model,
+Fig.~\ref{fig:disc}, Fig.~\ref{fig:dist} and Table~\ref{tab:main} report the primary endpoint across all conditions. Within a single model,
 AUROC ranges from $0.492$ to $0.800$. On standard-difficulty clinical items confidence is
 informative ($0.699$ and $0.703$); on the hard subset of the same sources it is at chance
 ($0.492$ and $0.540$). The pattern reproduces in a non-reasoning model ($0.671$ standard,
@@ -658,7 +703,7 @@ informative.}
 \label{fig:disc}
 \end{figure*}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Discrimination of elicited confidence across conditions. AUROC with $95\%$ bootstrap
 interval; $\star$ indicates the interval excludes $0.5$.}
 \label{tab:main}
@@ -683,15 +728,16 @@ AgentClinic (static) & gpt-5.4 & 303 & .667 & .689 [.628, .748]$^\star$ \\
 \multicolumn{5}{l}{\emph{Clinical, interactive consultation}}\\
 AgentClinic (inter.) & gpt-5.4-mini & 642 & .632 & .751 [.713, .787]$^\star$ \\
 AgentClinic (inter.) & gpt-5.4 & 642 & .727 & .800 [.759, .840]$^\star$ \\
+\multicolumn{5}{l}{\emph{Clinical, procedural}}\\
+MedCalc & gpt-5.4-mini & 581 & .690 & .693 [.650, .736]$^\star$ \\
 \multicolumn{5}{l}{\emph{Non-clinical controls}}\\
 MMLU-Pro & gpt-5.4-mini & 600 & .742 & .704 [.659, .747]$^\star$ \\
 ARC-Challenge & gpt-5.4-mini & 600 & .958 & .782 [.683, .874]$^\star$ \\
-MedCalc & gpt-5.4-mini & 581 & .690 & .693 [.650, .736]$^\star$ \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Per-source decomposition, \texttt{gpt-5.4-mini}. Under the standard split no source falls
 below chance; under the hard split four of ten do. The collapse is a property of the difficulty
 stratum rather than of any particular source.}
@@ -726,10 +772,10 @@ On the same 214 AgentClinic cases, presented interactively rather than as comple
 confidence discriminates at $0.751$ [$0.713$, $0.787$] and $0.800$ [$0.759$, $0.840$], against
 $0.669$ and $0.689$ for the static presentation of the same cases. Table~\ref{tab:intvsstatic} places the two presentations side by side. Deferral becomes useful:
 routing the least-confident $18.5\%$ raises accuracy of the retained set from $0.632$ to $0.715$, and
-routing $37.5\%$ raises it to $0.786$ (Fig.~\ref{fig:dca}, right; Table~\ref{tab:inter}). The stronger model shows the same
+routing $37.5\%$ raises it to $0.786$ (Fig.~\ref{fig:dca}c; Table~\ref{tab:inter}). The stronger model shows the same
 pattern, from $0.727$ to $0.859$ at $24.8\%$ deferral.
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Deferral value in interactive consultation, AgentClinic (214 cases $\times$ 3 seeds).}
 \label{tab:inter}
 \centering
@@ -739,7 +785,7 @@ pattern, from $0.727$ to $0.859$ at $24.8\%$ deferral.
 \toprule
 Model & Threshold & Deferred & Acc.\ retained & $\Delta$ \\
 \midrule
-\multirow{6}{*}{gpt-5.4-mini}
+\multirow{4}{*}{gpt-5.4-mini}
  & none & 0.0\% & .632 & --- \\
  & $\geq 8$ & 18.5\% & .715 & $+.083$ \\
  & $\geq 9$ & 37.5\% & .786 & $+.153$ \\
@@ -754,27 +800,28 @@ Model & Threshold & Deferred & Acc.\ retained & $\Delta$ \\
 \end{tabular}}
 \end{table}
 
-\begin{figure*}[t]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=0.96\textwidth]{figs/fig3_distributions.pdf}
+\includegraphics[width=\columnwidth]{figs/fig3_distributions.pdf}
 \caption{Distribution of stated confidence for correct (blue) and incorrect (red) episodes,
-\texttt{gpt-5.4-mini}. At the capability frontier the two distributions are superimposed; separation
-appears at standard difficulty and is widest under interactive consultation.}
+\texttt{gpt-5.4-mini}, at the two extremes of the range. (a) At the capability frontier the two
+distributions are superimposed. (b) Under interactive consultation they separate. The intermediate
+conditions interpolate between them.}
 \label{fig:dist}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}[t]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=0.96\textwidth]{figs/fig4_reliability.pdf}
+\includegraphics[width=\columnwidth]{figs/fig4_reliability.pdf}
 \caption{Reliability diagrams, \texttt{gpt-5.4-mini}; marker area is proportional to bin occupancy
-and the dashed line is perfect calibration. At the capability frontier the curve is essentially
-flat---observed accuracy is unrelated to stated confidence over its whole range---whereas the
-interactive curve is monotone. Expected calibration error is reported above each panel, and moves in
-the same direction as discrimination without being equivalent to it.}
+and the dashed line is perfect calibration. (a) At the capability frontier the curve is essentially
+flat---observed accuracy is unrelated to stated confidence over its whole range. (b) Under
+interactive consultation it is monotone. Expected calibration error is reported above each panel; it
+moves in the same direction as discrimination without being equivalent to it.}
 \label{fig:rel}
-\end{figure*}
+\end{figure}
 
-\begin{figure}[t]
+\begin{figure}[!htb]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig5_risk_coverage.pdf}
 \caption{Risk--coverage curves. Cases are handled autonomously in decreasing order of stated
@@ -787,10 +834,10 @@ steeply.}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.96\textwidth]{figs/fig6_mechanism.pdf}
-\caption{What elicited confidence tracks. Left: two models from different vendors agree strongly on
-which items warrant confidence. Centre: neither model's confidence predicts its own correctness.
-Right: a model's confidence is predicted about as well by \emph{another} model's answer stability as
-by its own, which excludes within-episode circularity.}
+\caption{What elicited confidence tracks. (a) Two models from different vendors agree strongly on
+which items warrant confidence. (b) Neither model's confidence predicts its own correctness. (c) A
+model's confidence is predicted about as well by \emph{another} model's answer stability as by its
+own, which excludes within-episode circularity.}
 \label{fig:mech}
 \end{figure*}
 
@@ -802,6 +849,64 @@ principle reflect base rate rather than difficulty. Applying the matching of \eq
 $0.703$ [$0.670$, $0.735$] at matched accuracy $0.474$, against unmatched values of $0.698$ and
 $0.703$. The collapse is a property of the items, not of the class balance.
 
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_baselines.pdf}
+\caption{Three confidence estimators measured on the same committed answers. At standard difficulty
+all three are informative; at the capability frontier all three sit at or below chance, and the token
+probability---which reads the model's own distribution rather than its words---is the worst of them
+on \texttt{gpt-4o-mini}. The failure is therefore not a failure of verbalization.}
+\label{fig:baselines}
+\end{figure}
+
+\subsection{The failure is not a property of verbalization}
+Elicited confidence is one estimator among several. If its collapse at the frontier were an artifact
+of asking the model to put a number into words, an estimator that reads the model's own distribution
+should be immune. We therefore attach three estimators to the \emph{same} committed answer, so that
+their AUROCs are scored against one correctness label and are directly comparable: the verbalized
+$1$--$10$ value; the token probability the model assigned to the option letter it chose; and
+$P(\mathrm{True})$, the probability it places on the token \texttt{True} when asked whether that
+answer is correct, which is the self-evaluation estimator of Kadavath \emph{et al.}~\cite{kadavath2022}.
+Two models expose token probabilities, one reasoning and one not, and each is measured on $250$
+standard and $250$ frontier items.
+
+All three behave the same way (Fig.~\ref{fig:baselines}, Table~\ref{tab:baselines}). At standard
+difficulty all are informative---$0.729$, $0.775$, $0.740$ on \texttt{gpt-4o-mini} and $0.638$,
+$0.673$, $0.691$ on \texttt{gpt-5.4-mini}. At the frontier all six values fall at or below chance,
+between $0.325$ and $0.488$. The paired contrast against the verbalized value gives no alternative an
+advantage there: $P(\mathrm{True})$ is indistinguishable from it on both models
+($-.017$ $[-.088,+.054]$ and $-.013$ $[-.088,+.059]$), and the token probability is significantly
+\emph{worse} on \texttt{gpt-4o-mini} ($-.163$ $[-.276,-.045]$), where it reaches $0.325$---an
+inversion strong enough that ranking by it is worse than ranking at random.
+
+This is the control that decides how far the paper's claim reaches. Verbalization is not the
+bottleneck, and neither is the elicitation format (Section~V-I) nor the response scale
+(Section~V-J): the constraint is on what the model has to report. Where the vignette is complete and
+the residual error is one of medical knowledge, no read-out of the model---in words, in logits, or in
+a second self-evaluating pass---separates its right answers from its wrong ones.
+
+\begin{table}[!htb]
+\caption{Three estimators on identical committed answers, AUROC with $95\%$ bootstrap interval,
+$n=250$ per cell. $\Delta$ is the paired contrast against the verbalized value at the frontier.}
+\label{tab:baselines}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Model / stratum & Verbalized $1$--$10$ & Token probability & $P(\mathrm{True})$ \\
+\midrule
+gpt-4o-mini, standard & .729 [.666,.790] & .775 [.716,.833] & .740 [.679,.801] \\
+gpt-4o-mini, frontier & .488 [.395,.573] & \textbf{.325} [.249,.404] & .470 [.380,.561] \\
+\quad $\Delta$ vs.\ verbalized & --- & $-.163$ $[-.276,-.045]$ & $-.017$ $[-.088,+.054]$ \\
+\midrule
+gpt-5.4-mini, standard & .638 [.565,.713] & .673 [.588,.758] & .691 [.619,.763] \\
+gpt-5.4-mini, frontier & .422 [.354,.495] & .456 [.375,.534] & .408 [.329,.488] \\
+\quad $\Delta$ vs.\ verbalized & --- & $+.034$ $[-.049,+.116]$ & $-.013$ $[-.088,+.059]$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \subsection{No elicitation format recovers discrimination}
 To test whether the null reflects how confidence was requested rather than what the model has to
@@ -839,7 +944,7 @@ The scale therefore limits how finely a usable signal can be expressed but does 
 none exists---which is the expected pattern if the constraint is on the information available rather
 than on the channel carrying it.
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Sensitivity to elicitation design, \texttt{gpt-5.4-mini}, 150 items per split.
 Varying the differential cap changes elicited breadth but not discrimination; presenting the
 confidence field before the answer does not change it either. Neither aspect of the schema is
@@ -879,12 +984,12 @@ Ablation & Variant & Acc. & Breadth & AUROC & [95\% CI] \\
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Cost of transferring a deferral threshold across conditions. The threshold is the smallest
 value achieving $\ge 0.85$ accuracy on the retained set in the calibration condition; it is then
-applied unchanged in the deployment condition. Transfer into the capability frontier fails from
-every origin, and the failure is not detectable from the calibration condition. Bold marks a
-deployment accuracy below the service level the threshold was chosen to guarantee.}
+applied unchanged in the deployment condition. Bold marks a deployment accuracy below the service
+level the threshold was chosen to guarantee; \emph{any} marks a calibration condition in which no
+threshold attains it.}
 \label{tab:transfer}
 \centering
 \small
@@ -893,7 +998,7 @@ deployment accuracy below the service level the threshold was chosen to guarante
 \toprule
 Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 \midrule
-\multirow{4}{*}{gpt-5.4-mini}
+\multirow{6}{*}{gpt-5.4-mini}
  & standard bench & static OSCE & 10 & 84.6\% & .857 \\
  & standard bench & interactive & 10 & 74.9\% & .857 \\
  & standard bench & frontier & 10 & 80.4\% & \textbf{.352} \\
@@ -910,7 +1015,7 @@ Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{The central experiment: removing and restoring the single item a case requires, across three
 models spanning two orders of magnitude of scale and two clinical task types. In AgentClinic the removed item is the key diagnostic finding,
 which leaves the case harder but answerable; in MedCalc it is a numerically required laboratory
@@ -957,6 +1062,27 @@ Task & Model & Acc. & Conf. & \multicolumn{2}{l}{AUROC [95\% CI]} \\
 \end{table}
 
 
+\subsection{The free-text scoring rule does not drive the result}
+Free-text diagnoses are scored by the alias-aware match of \eqref{eq:hit}, which is strict: it marks
+``Pancoast tumor'' wrong against a reference of ``apical lung tumor'', and ``Jersey finger'' wrong
+against ``rupture of the flexor digitorum profundus tendon''. Because the mis-scored answers tend to
+be confident ones, the rule could in principle depress measured discrimination. We therefore
+re-adjudicated all $564$ distinct (reference, candidate) pairs that the string rule marked wrong,
+using a judge model that is not among the evaluated models and is asked only whether the two strings
+name the same clinical entity; $10.1\%$ were judged equivalent. Every principal quantity was then
+recomputed under the relaxed scorer.
+
+Nothing that the paper concludes depends on the choice. Static AgentClinic is unchanged to three
+decimals in both accuracy and \eqref{eq:auc}. Interactive consultation improves under the relaxed
+rule---accuracy $0.632 \to 0.659$ and $0.727 \to 0.757$, discrimination $0.751 \to 0.773$ and
+$0.800 \to 0.837$---so the condition this paper reports as most favourable to confidence gating is,
+if anything, understated by the strict rule. In the removal manipulation the accuracy contrast grows
+slightly ($+.091 \to +.103$, $+.086 \to +.100$, $+.105 \to +.107$) and the discrimination contrast
+remains within the interval containing zero in two of the three cells; in the third,
+\texttt{gpt-5.4-nano}, the relaxed interval excludes zero at $+.086$ $[+.015,+.157]$, which we report
+rather than resolve. Strict scoring is used throughout the paper because it is the pre-registered
+rule; the relaxed values are given here so that the dependence can be checked.
+
 \subsection{The pattern holds on independent corpora}
 To establish that the pattern is not an artifact of one benchmark family, we repeat the measurement
 on corpora constructed separately from the clinical sets.
@@ -979,7 +1105,7 @@ systematic departure from it that this paper is about: interactive consultation 
 trend, because there the model's errors are errors of insufficient evidence, which is what its
 confidence reports.
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{First stage: realised reasoning tokens by assigned operating point,
 \texttt{gpt-5.4-mini}. The assignment moves the resource by more than an order of magnitude with no
 truncation, which is what licenses treating the nominal effort setting as a resource manipulation
@@ -999,7 +1125,7 @@ Operating point & $n$ & Median & IQR & p90 & Trunc. \\
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htb]
 \caption{Threats to validity and the design element that addresses each. Every row is a control run
 rather than an argument; the section giving the result is named.}
 \label{tab:threats}
@@ -1026,7 +1152,7 @@ Architecture & non-reasoning model & V-D: reproduces \\
 \end{table}
 
 
-\begin{figure}[t]
+\begin{figure}[!htb]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig8_acc_vs_auc.pdf}
 \caption{Discrimination against task accuracy across all seven evaluation sets,
@@ -1050,6 +1176,62 @@ condition, not by the model.}
 \label{fig:dca}
 \end{figure*}
 
+
+\subsection{Significance and equivalence of the principal contrasts}
+Two of this paper's three claims assert a difference and one asserts its absence, and the two need
+different tests. Differences are tested by Wilcoxon signed-rank on item-paired values where the
+design is paired and by a $4000$-permutation test on the condition label where it is not; Holm
+correction is applied across the family of nine difference tests. An interval containing zero is not
+evidence of no effect, so the null claim is tested separately, by two one-sided tests against a
+pre-specified equivalence margin of $0.10$ AUROC---about a third of the range this paper reports
+across deployment conditions, and below any shift that would change a deferral policy. The
+equivalence tests form their own Holm family.
+
+Every difference claim survives correction with room to spare (Table~\ref{tab:sig}). The manipulation
+moves confidence at $p_{\mathrm{Holm}} \le 7\times10^{-25}$ in all five cells and accuracy at
+$p_{\mathrm{Holm}} \le 3\times10^{-6}$; the frontier-versus-standard and static-versus-interactive
+contrasts survive at $p_{\mathrm{Holm}} \le 0.021$; the dose trend in confidence is at
+$1\times10^{-61}$.
+
+The equivalence tests are the honest limit of the null claim. Formal equivalence at the $0.10$ margin
+is attained in one of the five cells (MedCalc / \texttt{gpt-5.4}, $p_{\mathrm{Holm}}=0.050$) and not
+in the others, whose $p_{\mathrm{Holm}}$ values run from $0.074$ to $0.32$. The design is therefore
+powered to show that the discrimination contrast is small, not to prove it is exactly zero. What the
+data support is a bounded statement: in no cell does the contrast differ significantly from zero, and
+in every cell the $95\%$ interval excludes a shift larger than $0.17$ in either direction. Set against
+a manipulation that moves accuracy by $41$ points and confidence by $3.6$, that bound is the result.
+We state the claim in those terms throughout rather than as a demonstrated null.
+
+\begin{table}[!htb]
+\caption{Tests of the principal contrasts. Difference claims and equivalence claims are corrected as
+separate Holm families. The equivalence margin is $0.10$ AUROC, fixed before testing.}
+\label{tab:sig}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllr}
+\toprule
+Claim & Cell & Estimate & $p_{\mathrm{Holm}}$ \\
+\midrule
+\multicolumn{4}{l}{\emph{Difference claims} (Wilcoxon signed-rank / permutation)}\\
+Removal moves confidence & MedCalc, both models & $+3.49$, $+3.59$ & $\le 7\text{e--}57$ \\
+Removal moves confidence & AgentClinic, 3 models & $+0.47$ to $+0.68$ & $\le 7\text{e--}25$ \\
+Removal moves accuracy & MedCalc, both models & $+.408$, $+.411$ & $\le 3\text{e--}34$ \\
+Removal moves accuracy & AgentClinic, 3 models & $+.086$ to $+.105$ & $\le 3\text{e--}06$ \\
+Standard $>$ frontier AUROC & gpt-5.4-mini / gpt-5.4 & $+.207$ / $+.163$ & $1.3\text{e--}03$ \\
+Interactive $>$ static AUROC & gpt-5.4-mini / gpt-5.4 & $+.083$ / $+.111$ & $.021$ / $.009$ \\
+Dose lowers confidence & gpt-5.4-mini & $\rho = -.582$ & $1.4\text{e--}61$ \\
+Dose 1 vs 3 moves AUROC & gpt-5.4-mini & $+.015$ & $.81$ (n.s.) \\
+\midrule
+\multicolumn{4}{l}{\emph{Equivalence claims} (TOST, margin $0.10$)}\\
+Removal does not move AUROC & MedCalc / gpt-5.4 & $+.029$ & $\mathbf{.050}$ \\
+Removal does not move AUROC & AgentClinic / gpt-5.4-mini & $+.006$ & $.074$ \\
+Removal does not move AUROC & MedCalc / gpt-5.4-mini & $+.062$ & $.32$ \\
+Removal does not move AUROC & AgentClinic / gpt-5.4 & $-.059$ & $.32$ \\
+Removal does not move AUROC & AgentClinic / gpt-5.4-nano & $+.054$ & $.32$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \subsection{The cost of transferring a threshold}
 To convert the preceding results into a deployment quantity, we calibrate a deferral threshold in one
@@ -1096,16 +1278,11 @@ Two consequences follow for system design. First, confidence-gated deferral cann
 standard benchmark items and then deployed at the capability frontier: on exactly the cases where a
 safety mechanism is most needed, discrimination of answer correctness drops from $0.70$ to
 $0.48$--$0.54$, and a threshold carried across delivers $0.35$--$0.50$ against an $0.85$ target. Second, and in the opposite direction, static benchmark evaluation \emph{understates}
-confidence reliability for consultation agents. The interactive result is not a contradiction of the
-static one: if confidence tracks answer convergence, then a model that has actively obtained the
-discriminating finding converges for a reason, and its confidence inherits that reason. Evidence
-acquisition supplies information that a fully-specified vignette never requires the model to earn.
-
-That mechanism also explains why no elicitation format helps. All four formats read out the same
-underlying convergence signal, so rewording the question cannot manufacture information that the
-computation did not produce. It is consistent with general-domain findings that cross-model
-confidence is dominated by a shared item factor~\cite{metacog2026} and that overconfidence stems
-from insufficient conditioning on the model's own answer~\cite{advice2025}.
+confidence reliability for consultation agents. The two results are not in tension: a consultation
+agent's errors are largely errors of evidence it never gathered, which is exactly what its stated
+confidence reports, whereas a fully specified vignette never requires the model to earn its evidence
+and leaves only knowledge errors, about which the signal is silent. Section~VI-A develops this
+account and reports the test that rules out the alternative.
 
 \subsection{What the signal is, and why the conditions differ}
 The two headline observations---confidence is uninformative at the frontier yet strong in
@@ -1156,10 +1333,11 @@ mechanism on the same model yields steep monotone gains in consultation and a fl
 frontier, and no summary of the confidence \emph{scale} distinguishes those two situations.
 
 \subsection{Relation to prior findings}
-Our general-domain observations---strong cross-model agreement in stated confidence, near-zero
-within-model correlation with correctness, and no recovery from alternative elicitation---reproduce
-what has been reported for non-clinical benchmarks~\cite{metacog2026,xiong2023}. We regard that
-agreement as a validity check on our instrument rather than as a finding. The clinical results have
+Where this paper overlaps the general-domain literature it agrees with it, and we treat the
+agreement as a validity check on the instrument rather than as a finding: cross-model consistency in
+stated confidence, near-zero within-model correlation with correctness, and no recovery from
+alternative elicitation all reproduce what has been reported for non-clinical
+benchmarks~\cite{metacog2026,xiong2023}. The clinical results have
 no counterpart in that literature because it does not manipulate evidence: the observation that
 removing a required finding moves stated confidence without moving discrimination requires a task in
 which one can identify what a case needs, remove exactly that, and score the answer---which
@@ -1178,14 +1356,15 @@ generation; the post-hoc format controls for this and shows no difference.
 
 \section{Conclusion}
 Elicited confidence in clinical language models is not a stable property that can be measured once
-and relied upon. Across 33{,}200 episodes, five models, two vendors and seven evaluation sets, its
+and relied upon. Across 34{,}200 episodes, five models, two vendors and seven evaluation sets, its
 discriminative power ranges from chance to strong within a single model, governed by whether the
 item lies at the model's capability frontier and whether the model gathered the evidence itself. The variation across conditions exceeds the variation
 across models.
 
 The reason is not that confidence is noise. It is a reading of whether the model has what the case
 requires: removing the one item a case needs moves stated confidence by up to $3.6$ points on a
-ten-point scale while leaving discrimination statistically unchanged, in every cell tested. That
+ten-point scale while shifting discrimination by no more than $.17$ AUROC, undetectably, in every
+cell tested. That
 single fact predicts both extremes. Where errors arise from evidence the model never obtained, its
 confidence sees them, and deferral in interactive consultation reaches $0.75$--$0.80$ and is
 genuinely useful. Where the evidence is complete and the error is one of knowledge, there is nothing

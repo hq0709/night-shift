@@ -21,8 +21,10 @@ CONDS = [("Capability frontier", "results/stage2_gpt-5.4-mini.jsonl"),
          ("MedCalc (procedural)", "results/gen_medcalc.jsonl"),
          ("Standard difficulty", "results/easy_gpt-5.4-mini.jsonl"),
          ("Interactive", "results/inter_full_gpt-5.4-mini.jsonl")]
-fig, axes = plt.subplots(1, 4, figsize=(S.TXT, 1.85), sharey=True)
-for ax, (lbl, p) in zip(axes, CONDS):
+# Only the two extremes carry the argument; the middle conditions interpolate between them.
+DIST = [CONDS[0], CONDS[3]]
+fig, axes = plt.subplots(1, 2, figsize=(S.COL, 1.6), sharey=True)
+for ax, (lbl, p) in zip(axes, DIST):
     r = L(p)
     if not r: continue
     bins = np.arange(0.5, 11.5, 1)
@@ -33,13 +35,14 @@ for ax, (lbl, p) in zip(axes, CONDS):
     ax.set_title(lbl); ax.set_xlabel("stated confidence")
     ax.set_xlim(3.5, 10.5); ax.spines[["top","right"]].set_visible(False)
 axes[0].set_ylabel("density"); axes[0].legend()
-for _i, _a in enumerate(axes.ravel()): S.panel(_a, "abcd"[_i], dx=-0.22)
+for _i, _a in enumerate(axes.ravel()): S.panel(_a, "ab"[_i], dx=-0.24 if _i==0 else -0.08)
 fig.tight_layout(); fig.savefig(_R/"paper/figs/fig3_distributions.pdf", bbox_inches="tight")
 print("fig3")
 
 # ---- Fig 4: reliability diagrams -------------------------------------------
-fig, axes = plt.subplots(1, 4, figsize=(S.TXT, 1.95), sharey=True)
-for ax, (lbl, p) in zip(axes, CONDS):
+REL = [CONDS[0], CONDS[3]]
+fig, axes = plt.subplots(1, 2, figsize=(S.COL, 1.7), sharey=True)
+for ax, (lbl, p) in zip(axes, REL):
     r = L(p)
     if not r: continue
     xs, ys, ns = [], [], []
@@ -56,7 +59,7 @@ for ax, (lbl, p) in zip(axes, CONDS):
     ax.set_xlabel("stated confidence"); ax.set_xlim(0.35,1.03); ax.set_ylim(0,1.03)
     ax.spines[["top","right"]].set_visible(False)
 axes[0].set_ylabel("observed accuracy")
-for _i, _a in enumerate(axes.ravel()): S.panel(_a, "abcd"[_i], dx=-0.22)
+for _i, _a in enumerate(axes.ravel()): S.panel(_a, "ab"[_i], dx=-0.26 if _i==0 else -0.10)
 fig.tight_layout(); fig.savefig(_R/"paper/figs/fig4_reliability.pdf", bbox_inches="tight")
 print("fig4")
 
@@ -89,18 +92,21 @@ A = {k: agg(v) for k, v in {
     "gpt-5.4-mini":"results/axisA_gpt54mini.jsonl","sonnet-5":"results/axisA_sonnet5.jsonl",
     "gpt-5.4-nano":"results/stage1_gpt-5.4-nano.jsonl","gpt-5.4":"results/stage1_gpt-5.4.jsonl"}.items()}
 com = sorted(set.intersection(*[set(v) for v in A.values()]))
-fig, axes = plt.subplots(1, 3, figsize=(S.TXT, 2.2))
+fig, axes = plt.subplots(1, 3, figsize=(S.TXT, 1.95))
 cx = np.array([np.mean([e["confidence"] for e in A["gpt-5.4-mini"][u]]) for u in com])
 cy = np.array([np.mean([e["confidence"] for e in A["gpt-5.4"][u]]) for u in com])
 ax = axes[0]; ax.scatter(cx, cy, s=7, alpha=.45, color=S.BLUE)
 ax.set_xlabel("gpt-5.4-mini confidence"); ax.set_ylabel("gpt-5.4 confidence")
-ax.set_title(f"cross-model confidence\nr = {pearsonr(cx,cy)[0]:.3f}")
+ax.set_title("cross-model confidence")
+ax.text(.04,.94,f"$r$ = {pearsonr(cx,cy)[0]:.3f}",transform=ax.transAxes,fontsize=6.2,va="top")
 ax_ = axes[1]
 ax_.scatter(cx, [np.mean([e["correct"] for e in A["gpt-5.4-mini"][u]]) for u in com],
             s=7, alpha=.45, color=S.RED)
 ax_.set_xlabel("gpt-5.4-mini confidence"); ax_.set_ylabel("its own accuracy")
-ax_.set_title(f"confidence vs own correctness\nr = "
-              f"{pearsonr(cx,[np.mean([e['correct'] for e in A['gpt-5.4-mini'][u]]) for u in com])[0]:+.3f}")
+ax_.set_title("confidence vs own correctness")
+ax_.text(.04,.94,f"$r$ = "
+              f"{pearsonr(cx,[np.mean([e['correct'] for e in A['gpt-5.4-mini'][u]]) for u in com])[0]:+.3f}",
+         transform=ax_.transAxes, fontsize=6.2, va="top")
 def stab(k):
     o=[]
     for u in com:
@@ -112,8 +118,9 @@ m = ~np.isnan(s_other)
 ax2 = axes[2]; ax2.scatter(s_other[m], cx[m], s=7, alpha=.45, color=S.GREEN)
 ax2.set_xlabel("another model's answer stability")
 ax2.set_ylabel("gpt-5.4-mini confidence")
-ax2.set_title(f"confidence vs cross-model stability\nr = {pearsonr(s_other[m],cx[m])[0]:+.3f}")
+ax2.set_title("confidence vs peer stability")
+ax2.text(.04,.94,f"$r$ = {pearsonr(s_other[m],cx[m])[0]:+.3f}",transform=ax2.transAxes,fontsize=6.2,va="top")
 for a in axes: a.spines[["top","right"]].set_visible(False)
-for _i, _a in enumerate(axes.ravel()): S.panel(_a, "abcd"[_i], dx=-0.2)
+for _i, _a in enumerate(axes.ravel()): S.panel(_a, "abc"[_i], dx=-0.17, dy=1.10)
 fig.tight_layout(); fig.savefig(_R/"paper/figs/fig6_mechanism.pdf", bbox_inches="tight")
 print("fig6")
