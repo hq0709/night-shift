@@ -5,6 +5,9 @@ Fig 2  decision curves, high-acuity static vs interactive (the deployment conseq
 from __future__ import annotations
 import sys, json, os, pathlib
 import numpy as np
+import sys, pathlib as _pl
+sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
+import figstyle as S
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -13,9 +16,6 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 _R = pathlib.Path(__file__).resolve().parents[1]
 rng = np.random.default_rng(0)
 
-plt.rcParams.update({"font.size": 8, "font.family": "DejaVu Sans",
-                     "axes.linewidth": 0.7, "xtick.major.width": 0.7,
-                     "ytick.major.width": 0.7, "legend.frameon": False})
 
 
 def auroc(c, y):
@@ -44,26 +44,23 @@ def load(p):
 
 # ---------------------------------------------------------------- Figure 1
 GROUPS = [
-    ("Capability frontier", "#c0392b", [
+    ("Capability frontier", S.RED, [
         ("MedAgentsBench-hard", "gpt-5.4-mini", "results/stage2_gpt-5.4-mini.jsonl"),
         ("MedAgentsBench-hard", "gpt-5.4", "results/stage2_gpt-5.4.jsonl"),
         ("MedAgentsBench-hard", "sonnet-5", "results/axisA_sonnet5.jsonl"),
         ("MedAgentsBench-hard", "gpt-4o-mini", "results/nr_hard_gpt-4o-mini.jsonl")]),
-    ("High acuity", "#e67e22", [
-        ("RedFlag-99", "gpt-5.4-mini", "results/redflag_gpt-5.4-mini.jsonl"),
-        ("RedFlag-99", "gpt-5.4", "results/redflag_gpt-5.4.jsonl")]),
-    ("Standard difficulty", "#2980b9", [
+    ("Standard difficulty", S.BLUE, [
         ("MedAgentsBench-std", "gpt-5.4-mini", "results/easy_gpt-5.4-mini.jsonl"),
         ("MedAgentsBench-std", "gpt-5.4", "results/easy_gpt-5.4.jsonl"),
         ("MedAgentsBench-std", "gpt-4o-mini", "results/nr_easy_gpt-4o-mini.jsonl"),
         ("AgentClinic static", "gpt-5.4-mini", "results/ac_gpt-5.4-mini.jsonl"),
         ("AgentClinic static", "gpt-5.4", "results/ac_gpt-5.4.jsonl")]),
-    ("Interactive consultation", "#27ae60", [
+    ("Interactive consultation", S.GREEN, [
         ("AgentClinic interactive", "gpt-5.4-mini", "results/inter_full_gpt-5.4-mini.jsonl"),
         ("AgentClinic interactive", "gpt-5.4", "results/inter_full_gpt-5.4.jsonl")]),
 ]
 
-fig, ax = plt.subplots(figsize=(7.0, 4.4))
+fig, ax = plt.subplots(figsize=(S.TXT, 3.5))
 y = 0; ticks = []; labels = []
 for gname, color, entries in GROUPS:
     for ds, m, p in entries:
@@ -74,21 +71,21 @@ for gname, color, entries in GROUPS:
         ax.plot([lo, hi], [y, y], color=color, lw=1.6, solid_capstyle="butt")
         ax.plot(mu, y, "o", color=color, ms=4.5, zorder=3)
         ax.text(0.905, y, f"{np.mean([x['correct'] for x in r]):.2f}", va="center",
-                ha="center", fontsize=6.6, color="#555")
+                ha="center", color="#555")
         ticks.append(y); labels.append(f"{ds}  ·  {m}")
         y -= 1
     y -= 0.55
 
 ax.axvline(0.5, color="#888", ls="--", lw=0.8, zorder=0)
-ax.set_yticks(ticks); ax.set_yticklabels(labels, fontsize=7)
+ax.set_yticks(ticks); ax.set_yticklabels(labels)
 ax.set_xlabel("AUROC of elicited confidence for discriminating correct vs incorrect")
 ax.set_xlim(0.38, 0.93); ax.set_ylim(y + 0.4, 1.2)
-ax.text(0.905, 1.0, "acc.", ha="center", fontsize=6.6, color="#555")
-ax.text(0.5, 1.0, "chance", ha="center", fontsize=6.6, color="#888")
+ax.text(0.905, 1.0, "acc.", ha="center", color="#555")
+ax.text(0.5, 1.0, "chance", ha="center", color="#888")
 for gname, color, _ in GROUPS:
     ax.plot([], [], color=color, lw=2.4, label=gname)
-ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=4,
-          fontsize=7, columnspacing=1.4, handlelength=1.6)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=3,
+          columnspacing=1.6, handlelength=1.6)
 ax.spines[["top", "right"]].set_visible(False)
 fig.tight_layout()
 fig.savefig(_R / "paper/figs/fig1_discrimination.pdf", bbox_inches="tight")
@@ -96,48 +93,37 @@ fig.savefig(_R / "paper/figs/fig1_discrimination.png", dpi=220, bbox_inches="tig
 print("fig1 done")
 
 # ---------------------------------------------------------------- Figure 2
-from envs import general                     # noqa: E402
-from taxonomy.families import considered     # noqa: E402
-meta = {it["uid"]: it for it in general.load_redflag()}
-
-fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.9))
-for ax_, (title, kind, sets) in zip(axes, [
-        ("High-acuity, static\n(endpoint: red flag considered)", "rf",
-         [("gpt-5.4-mini", "results/redflag_gpt-5.4-mini.jsonl", "#e67e22"),
-          ("gpt-5.4", "results/redflag_gpt-5.4.jsonl", "#c0392b")]),
-        ("Interactive consultation\n(endpoint: diagnosis correct)", "acc",
-         [("gpt-5.4-mini", "results/inter_full_gpt-5.4-mini.jsonl", "#27ae60"),
-          ("gpt-5.4", "results/inter_full_gpt-5.4.jsonl", "#16a085")])]):
-    for m, p, col in sets:
-        rows = load(p)
-        pts = []
-        for r in rows:
-            if kind == "rf":
-                it = meta.get(r["uid"])
-                if not it:
-                    continue
-                names = [it["redflag"]] + list(it.get("rf_aliases", []))
-                cand = list(r.get("differential") or []) + [r.get("red_flag_considered", "")]
-                good = int(any(considered(nm, cand) for nm in names if nm))
-            else:
-                good = int(r["correct"])
-            pts.append((r["confidence"], good))
+# Decision curves on a single endpoint (accuracy) across three conditions. The point is
+# that the gate's value is set by the condition, not by the model or the threshold.
+STRATA = [("Capability frontier", [("gpt-5.4-mini", "results/stage2_gpt-5.4-mini.jsonl"),
+                                   ("gpt-5.4", "results/stage2_gpt-5.4.jsonl")]),
+          ("Standard difficulty", [("gpt-5.4-mini", "results/easy_gpt-5.4-mini.jsonl"),
+                                   ("gpt-5.4", "results/easy_gpt-5.4.jsonl")]),
+          ("Interactive consultation", [("gpt-5.4-mini", "results/inter_full_gpt-5.4-mini.jsonl"),
+                                        ("gpt-5.4", "results/inter_full_gpt-5.4.jsonl")])]
+fig, axes = plt.subplots(1, 3, figsize=(S.TXT, 2.25), sharey=True)
+for ax_, (title, sets) in zip(axes, STRATA):
+    for (m, path), col in zip(sets, (S.BLUE, S.RED)):
+        rows = load(path)
+        if not rows:
+            continue
+        pts = [(r["confidence"], int(r["correct"])) for r in rows]
         base = np.mean([g for _, g in pts])
         xs, ys = [], []
         for th in np.arange(0, 11.5, 0.5):
             keep = [g for c, g in pts if c >= th]
             if len(keep) < 20:
                 continue
-            xs.append(1 - len(keep) / len(pts)); ys.append(np.mean(keep))
-        ax_.plot(np.array(xs) * 100, ys, "-o", color=col, ms=2.6, lw=1.3, label=m)
-        ax_.axhline(base, color=col, ls=":", lw=0.9)
-    ax_.set_title(title, fontsize=7.6)
-    ax_.set_xlabel("cases deferred to clinician (%)", fontsize=7.5)
-    ax_.legend(fontsize=6.8, loc="best")
-    ax_.spines[["top", "right"]].set_visible(False)
-axes[0].set_ylabel("red flag considered\n(retained cases)", fontsize=7.5)
-axes[1].set_ylabel("diagnostic accuracy\n(retained cases)", fontsize=7.5)
-fig.tight_layout()
-fig.savefig(_R / "paper/figs/fig2_decision_curves.pdf", bbox_inches="tight")
-fig.savefig(_R / "paper/figs/fig2_decision_curves.png", dpi=220, bbox_inches="tight")
+            xs.append(100 * (1 - len(keep) / len(pts))); ys.append(np.mean(keep))
+        ax_.plot(xs, ys, "-o", color=col, ms=2.2, label=m)
+        ax_.axhline(base, color=col, ls=":", lw=.8)
+    ax_.set_title(title, pad=4)
+    ax_.set_xlabel("cases deferred to clinician (%)")
+    ax_.set_xlim(-3, 103); ax_.set_ylim(0.25, 1.0)
+axes[0].set_ylabel("accuracy on retained cases")
+axes[2].legend(loc="lower right")
+for _i, _a in enumerate(axes.ravel()):
+    S.panel(_a, "abc"[_i], dx=-0.22 if _i == 0 else -0.08)
+fig.subplots_adjust(wspace=.09)
+S.save(fig, "fig2_decision_curves")
 print("fig2 done")

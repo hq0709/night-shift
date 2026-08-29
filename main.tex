@@ -14,14 +14,14 @@
 
 \begin{document}
 
-\title{Clinical Language Models Know What They Are Missing,\\
-Not What They Are Getting Wrong}
+\title{Elicited Confidence in Clinical Language Models\\
+Encodes Evidence Sufficiency, Not Answer Correctness}
 
 \author{Anonymous
 \thanks{Manuscript submitted 2026. Corresponding author: --.}}
 
 \markboth{IEEE Transactions on Biomedical and Health Informatics}%
-{Author \MakeLowercase{\textit{et al.}}: Models Know What They Are Missing}
+{Author \MakeLowercase{\textit{et al.}}: Elicited Confidence Encodes Evidence Sufficiency}
 
 \maketitle
 
@@ -29,20 +29,21 @@ Not What They Are Getting Wrong}
 Confidence-gated deferral---routing low-confidence outputs to a clinician---is the most widely
 proposed safety mechanism for clinical language models, and it presumes that a model's stated
 confidence reflects whether its answer is right. We show it reflects something else: whether the
-model has the information it needs. In a causal manipulation replicated across two models and two
-clinical task types, we remove a single item the model requires---a key diagnostic finding, or a
+model has the information it needs. In a causal manipulation replicated across three models and two
+clinical task types, we remove a single item a case requires---a key diagnostic finding, or a
 laboratory value without which a calculation cannot be performed---and restore it. Removal moves
-accuracy by $9$ points on diagnostic vignettes and by $41$ points on calculations, and moves stated confidence by up to
-$3.6$ points, so the model registers the deficiency. It does not move the ability of that confidence to separate correct from incorrect answers,
-in any condition tested. Confidence separates episodes where the missing item was obtained from
-those where it was not (AUROC $0.661$), and separates correct from incorrect answers \emph{better}
-where the item was missing than where it was present. The practical consequence is that a confidence
-gate catches information gaps and not knowledge errors: across $\sim$33{,}700 episodes, five models
-and eight evaluation sets, discrimination is strong where insufficiency dominates---interactive
-consultation, $0.75$--$0.80$---and at chance where the information is complete and the error is one
-of knowledge ($0.48$--$0.54$). A threshold meeting an $0.85$ service level in validation returns
-$0.716$--$0.763$ on can't-miss presentations, with nothing in the validation data signalling the
-shortfall.
+accuracy by $9$ points on diagnostic vignettes and $41$ on calculations, and moves stated confidence
+by up to $3.6$ points, so the model registers the deficiency; it does not move that confidence's
+ability to separate correct answers from incorrect ones in any condition tested. Grading the
+manipulation separates the two responses further: removing one, two and three required inputs lowers
+confidence monotonically, within item for $95\%$ of items, and lowers accuracy from $0.73$ to
+$0.25$, while discrimination is unchanged across the three levels ($+.014$ $[-.089,+.112]$). The
+consequence is that a confidence gate catches information gaps and not knowledge errors. Across
+$\sim$33{,}200 episodes, five models and seven evaluation sets, discrimination is strong where
+insufficiency dominates---interactive consultation, $0.75$--$0.80$---and at chance where the
+information is complete and the error is one of knowledge ($0.48$--$0.54$). A deferral threshold
+meeting an $0.85$ service level in validation returns $0.35$--$0.50$ at the capability frontier while
+still deferring up to four fifths of cases, and nothing in the validation data signals the shortfall.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -71,20 +72,22 @@ clinical deployment actually turns on, because it lacks clinical risk labels: \e
 remain informative on the cases where being wrong is most consequential?}
 
 \subsection{Why the clinical case is different}
-A safety mechanism that works on average but fails on high-acuity presentations is worse than no
-mechanism, because it produces false assurance exactly where assurance is unwarranted. Two features
-of clinical deployment have no analogue in benchmark evaluation. First, clinical risk is
-heavy-tailed: a confidently missed pulmonary embolism and a confidently missed trivia answer are not
-exchangeable errors, and safety-relevant evaluation must stratify by acuity rather than average over
-it. Second, a consultation agent does not receive a fully specified vignette; it decides what history
+A safety mechanism that works on average but fails on the hardest cases is worse than no mechanism,
+because it produces false assurance exactly where assurance is unwarranted. Two features of clinical
+deployment have no analogue in benchmark evaluation. First, a clinical case has a determinate
+information requirement: a diagnosis turns on a specific finding, a dose on a specific laboratory
+value. That makes it possible to ask what confidence responds to, by removing exactly what the case
+needs---an experiment general-knowledge benchmarks do not admit, because there is no defined item to
+remove. Second, a consultation agent does not receive a fully specified vignette; it decides what history
 to take and which tests to order, and is therefore responsible for the evidence on which its own
 confidence rests. Whether confidence measured in the first setting transfers to the second is an
 empirical question that has not been asked.
 
 \subsection{Scope of this study}
 We evaluate elicited confidence under three conditions that matter clinically and are absent from
-prior general-domain work: (i) at the model's capability frontier, where accuracy approaches chance;
-(ii) on cases carrying time-critical can't-miss diagnoses; and (iii) in interactive consultation. We
+prior general-domain work: (i) at the model's capability frontier, where accuracy approaches chance; (ii) on complete
+diagnostic vignettes and procedural calculations at standard difficulty; and (iii) in interactive
+consultation, where the model is responsible for gathering its own evidence. We
 hold the elicitation protocol byte-identical across all conditions, so that any difference in
 discrimination is attributable to the condition rather than to how the question was asked, and we
 control for the two artifacts that could produce our result spuriously---class balance and response
@@ -106,16 +109,21 @@ give ECE alongside it, and make the deployment consequence explicit through deci
 \item We identify what elicited confidence in clinical models reports, by removing and restoring the
 single item a case requires and observing what moves. Stated confidence tracks the removal; its
 ability to discriminate correct from incorrect answers does not. The result holds for a diagnostic
-finding and for a computational input, on three models, and is the paper's central claim.
+finding and for a computational input, on three models, and is the paper's central claim. Grading
+the manipulation sharpens it: removing one, two and three required inputs lowers stated confidence
+monotonically---within item, for $95\%$ of items---while leaving discrimination unchanged across the
+three levels.
 \item We show this account predicts where confidence works and where it fails, rather than merely
 describing it: discrimination is strong in interactive consultation, where the model may simply not
 have asked, and at chance at the capability frontier, where the information is present and the
 error is one of knowledge. Within a single model the range is $0.48$ to $0.80$---wider than the
 range across models within any one condition.
 \item We quantify the deployment consequence. A deferral threshold calibrated to an $0.85$ service
-level transfers into high-acuity presentations at $0.716$--$0.763$, from every calibration origin
-tested, and the shortfall is invisible in the validation data. The direction of transfer a
-development pipeline naturally takes is the failing one.
+level delivers $0.35$--$0.50$ at the capability frontier, from every calibration origin tested, while
+deferring between a fifth and four fifths of cases; no threshold reaches the service level there at
+all. The shortfall is invisible in the validation data, and the direction of transfer a development
+pipeline naturally takes---validate where the model is competent, deploy where it is not---is the
+failing one.
 \end{itemize}
 
 \section{Related Work}
@@ -183,8 +191,9 @@ laws across deployment conditions including inference-time compute, and that con
 concentrate in a small subset of items---motivating our stratification by clinical risk rather than
 by average performance. Failure-mode analyses of clinical agents identify information-seeking
 failure, anchoring, and premature closure~\cite{infoseek2026,premature2026,clinmm2026}, and
-ResidencyRL~\cite{residency2026} establishes missed-red-flag rate as a headline safety endpoint; we
-adopt that endpoint and ask whether elicited confidence predicts it. Reasoning-model behaviour on medical tasks has been characterised
+and ResidencyRL~\cite{residency2026} establishes missed-red-flag rate as a headline safety endpoint.
+That line of work measures how often clinical models fail; we ask whether the models' own stated
+confidence anticipates it. Reasoning-model behaviour on medical tasks has been characterised
 directly~\cite{r1med2025}, and agentic scaffolding studied for diagnostic
 instruction~\cite{scaffold2026,grasp2026}. Multi-agent deliberation has been proposed to improve
 clinical reasoning~\cite{ophtha2026,drl2026}, and long-context clinical
@@ -213,41 +222,6 @@ formula errors.
 \textbf{Non-clinical controls.} MMLU-Pro and ARC-Challenge were included as independent corpora
 spanning a wide accuracy range.
 
-\subsection{The RedFlag-99 probe}
-Filtering benchmark items by gold \emph{diagnosis} recovers few high-acuity cases, because in
-exam-style items the gold answer is typically a management step: matching a can't-miss diagnosis list
-against gold labels returned 41 items from 7{,}956 clinical items. We therefore filter on
-\emph{sentinel features in the stem}. Forty-eight regular expressions encode presenting features that
-oblige exclusion of a time-critical diagnosis (thunderclap onset, pain out of proportion, saddle
-anesthesia, tearing chest pain with a pulse differential, and others), compiled from standard
-emergency-medicine can't-miss lists. This is a mechanical criterion and requires no clinical
-judgement at filter time.
-
-The filter returned 164 candidates. An automated annotator not among the evaluated models confirmed
-105 as genuinely obliging exclusion of a can't-miss diagnosis (yield $64\%$) and supplied an alias
-set for machine-checkable scoring; labels were then mapped onto a closed vocabulary ($100\%$ mapped,
-46 conditions) and screened mechanically for fabricated sentinel quotes, alias/condition mismatch,
-and duplicates ($103/105$ passed). Ninety-nine items were available in the evaluation split,
-covering 44 conditions. All 99 have gold answers that are management steps rather than diagnosis
-names, so ``missed the red flag'' and ``answered incorrectly'' are distinct endpoints by
-construction.
-
-The yield of the two filters differs by an order of magnitude and the reason is structural. Let
-$G$ be the set of can't-miss condition names and $y_i$ the reference answer. Gold-label filtering
-selects $\{i : y_i \in G\}$; in exam-derived corpora $y_i$ is overwhelmingly a management step
-(``lumbar puncture'', ``aspirin'', ``repeat ECG in 10 minutes'') rather than a diagnosis name, so the
-selected set is small and biased toward items that happen to ask for a diagnosis. Sentinel filtering
-instead selects $\{i : \exists\, \sigma \in \Sigma,\ \sigma \text{ matches } x_i\}$ for a fixed
-pattern set $\Sigma$ over the presentation, which is the construct the safety question requires: a
-red flag is a feature of how the patient presents, not of what the question happens to ask. Applied
-to the same 7{,}956 clinical items the first returns 41 and the second 164, and every item in the
-final probe has a management-step reference answer---which is precisely why $h_i$ of \eqref{eq:hit}
-and $a_i$ are separable endpoints.
-
-\textbf{Annotation reliability.} Three independent automated annotators of differing scale judged
-each item; Fleiss' $\kappa = 0.487$, with $77/99$ unanimous (Table~\ref{tab:annot}). No physician reviewed these items. All
-principal analyses are repeated on the unanimous subset as a sensitivity analysis.
-
 \subsection{Threats addressed by design}
 Four alternative explanations of a null discrimination result are addressed by construction rather
 than by argument. \emph{Class balance}: handled by \eqref{eq:match}. \emph{Response format}: handled
@@ -255,9 +229,9 @@ by the four-format control and by the free-response corpora. \emph{Poor verbalis
 internal signal}: handled by comparing against sampling self-consistency, which requires no
 verbalisation at all. \emph{Censoring by response ceilings}: handled by the escalation rule in
 Section~IV-A, which matters because a ceiling set near the reasoning draw produces non-responses
-concentrated at high effort and would invert the direction of any effort-related result. A fifth
-threat, that the high-acuity items are simply harder, is the reason the high-acuity comparison is
-made against accuracy-matched controls rather than against the raw standard-difficulty set.
+concentrated at high effort and would invert the direction of any effort-related result. A fifth threat, that a
+condition differs in difficulty rather than in kind, is the reason every cross-condition contrast is
+made against accuracy-matched controls (Section~IV-D) rather than against raw sets.
 
 \begin{table}[t]
 \caption{Models evaluated. Vendor, scale and architecture are varied so that a condition effect
@@ -314,16 +288,15 @@ separated from model effects.
 
 \subsection{Elicitation protocol}
 Every episode used a fixed structured-output schema requesting, in one response: the differential
-actually considered, the single can't-miss condition actively excluded, the findings used, the
-committed answer, and a confidence. The schema is byte-identical across all conditions, so the
+actually considered, the findings used, the committed answer, and a
+confidence. The schema is byte-identical across all conditions, so the
 elicitation of confidence never varies with the experimental factor. Responses were parsed from JSON
 with at most one retry; parse rate was $1.000$.
 
 Three properties of this design matter for interpretation. First, the schema requests the
-differential and the actively-excluded condition \emph{before} the answer and the confidence, so the
-model states what it considered before committing, and $h_i$ of \eqref{eq:hit} is not a post-hoc
-rationalisation of a chosen answer. Second, nothing in the schema references difficulty, acuity, or
-the experimental condition, so the elicitation cannot leak the manipulation. Third, because the
+differential \emph{before} the answer and the confidence, so the model states what it considered
+before committing and the differential is not a post-hoc rationalisation of a chosen answer. Second,
+nothing in the schema references difficulty or the experimental condition, so the elicitation cannot leak the manipulation. Third, because the
 schema is fixed, the elicited differential is obtained under identical instructions everywhere; a
 condition that produced tersely worded answers cannot thereby appear to consider fewer hypotheses,
 which is the artifact that would otherwise confound any breadth-based measure.
@@ -347,12 +320,12 @@ high effort.
 Let $\mathcal{D}=\{(x_i,y_i)\}_{i=1}^{N}$ be a set of clinical items, $x_i$ the presentation and
 $y_i$ the reference answer. A model $m$ under operating point $e$ produces the episode of \eqref{eq:episode},
 \begin{equation}
-z_i^{(m,e)} = \big(\hat{y}_i,\; \mathcal{H}_i,\; \rho_i,\; c_i\big) \sim \pi_{m,e}(\cdot \mid x_i),
+z_i^{(m,e)} = \big(\hat{y}_i,\; \mathcal{H}_i,\; c_i\big) \sim \pi_{m,e}(\cdot \mid x_i),
 \label{eq:episode}
 \end{equation}
-where $\hat{y}_i$ is the committed answer, $\mathcal{H}_i$ the elicited differential, $\rho_i$ the
-can't-miss condition the model reports having excluded, and $c_i\in\{1,\dots,10\}$ the elicited
-confidence. Correctness is $a_i=\mathbb{1}[\hat{y}_i = y_i]$. All four fields are emitted in a single
+where $\hat{y}_i$ is the committed answer, $\mathcal{H}_i$ the elicited differential, and
+$c_i\in\{1,\dots,10\}$ the elicited confidence. Correctness is $a_i=\mathbb{1}[\hat{y}_i = y_i]$.
+All fields are emitted in a single
 structured response whose schema is invariant across every condition studied, so $\pi_{m,e}$ differs
 between conditions only in $e$ and in $\mathcal{D}$.
 
@@ -387,26 +360,24 @@ n^{+} = \Big\lfloor |\mathcal{C}^{-}| \cdot \frac{\alpha^{\ast}}{1-\alpha^{\ast}
 correct episodes without replacement, repeating $B_{\mathrm{m}}=3000$ times and reporting the
 distribution of $\widehat{\mathrm{AUC}}$ over the matched resamples.
 
-\subsection{Clinical endpoint}
-For an item carrying can't-miss condition $\kappa_i$ with alias set $A(\kappa_i)$, the safety
-endpoint is whether that condition was entertained at all:
+\subsection{Scoring free-text diagnoses}
+AgentClinic answers are free text, so equality with the reference is not the right test. Writing
+$A(y_i)$ for the reference diagnosis and its alias set,
 \begin{equation}
-h_i = \mathbb{1}\Big[\exists\, u \in \mathcal{H}_i \cup \{\rho_i\},\ \exists\, v \in A(\kappa_i):\
-\mathrm{sim}(u,v)\ \Big],
+a_i = \mathbb{1}\big[\exists\, v \in A(y_i):\ \mathrm{sim}(\hat{y}_i, v)\big],
 \label{eq:hit}
 \end{equation}
-where $\mathrm{sim}$ requires that at least half of the content tokens of $v$, after stop-word
-removal and light stemming, appear in $u$. Because the reference answer $y_i$ of every RedFlag item
-is a management step rather than a diagnosis name, $h_i$ and $a_i$ are distinct endpoints by
-construction, and $\mathrm{AUC}(c,h)$ measures something $\mathrm{AUC}(c,a)$ does not.
+where $\mathrm{sim}(u,v)$ holds when at least half the content tokens of $v$, after stop-word removal
+and light stemming, appear in $u$. Alias sets are fixed before any model is run. The same rule scores
+the elicited differential $\mathcal{H}_i$ when we ask whether the reference diagnosis was entertained
+at all.
 
 \subsection{Deferral utility}
 A gate with threshold $\tau$ routes episodes with $c_i<\tau$ to a clinician. Writing
 $R(\tau)=\{i: c_i \ge \tau\}$ for the retained set, we report the deferral fraction
 $d(\tau)=1-|R(\tau)|/N$ against the endpoint rate on retained cases,
 \begin{equation}
-q(\tau)=\frac{1}{|R(\tau)|}\sum_{i \in R(\tau)} g_i,
-\qquad g_i \in \{a_i,\, h_i\},
+q(\tau)=\frac{1}{|R(\tau)|}\sum_{i \in R(\tau)} a_i,
 \label{eq:dca}
 \end{equation}
 and the gain $q(\tau)-q(0)$. A gate has clinical value only if $q(\tau)$ rises appreciably for
@@ -435,9 +406,9 @@ silently counted as wrong.
 \subsection{Uncertainty quantification}
 All intervals are bootstrap percentile intervals over $B=4000$ episode-level resamples. For
 model-level comparisons the resampling unit is the item, since episodes of the same item are not
-independent. Fleiss' $\kappa$ for the $k=3$ annotators is computed as
-$\kappa = (\bar{P}-\bar{P}_e)/(1-\bar{P}_e)$ with
-$\bar{P}=\frac{1}{N}\sum_i \frac{1}{k(k-1)}\sum_{j}n_{ij}(n_{ij}-1)$.
+independent. Contrasts between experimental
+conditions on the same items---the removal manipulation and its graded form---resample items rather
+than episodes, so the interval reflects the repeated-measures design.
 
 \section{Experiment Configurations}
 
@@ -474,7 +445,6 @@ answer rather than eliminating it, so the mode is not the bottom of the same sca
 \subsection{Datasets and splits}
 Table~\ref{tab:data} summarises the evaluation sets. Difficulty is manipulated within corpus by
 using the hard and standard splits of the same sources, so difficulty is not confounded with domain.
-Calibration items used to fix the RedFlag construction are disjoint from all evaluation items.
 
 \begin{table}[t]
 \caption{Evaluation sets. Difficulty is varied within corpus (hard versus standard split of the same
@@ -490,7 +460,6 @@ Set & Domain & Items & Episodes & Answer format \\
 \midrule
 MedAgentsBench-hard & clinical & 894 & 8195 & option letter \\
 MedAgentsBench-std & clinical & 400 & 3198 & option letter \\
-RedFlag-99 & clinical, high acuity & 99 & 1188 & option letter \\
 AgentClinic (static) & clinical OSCE & 214 & 712 & free-text diagnosis \\
 AgentClinic (interactive) & clinical OSCE & 214 & 1284 & free-text diagnosis \\
 MedCalc & clinical procedural & 300 & 581 & numeric \\
@@ -502,7 +471,7 @@ ARC-Challenge & science & 300 & 600 & option letter \\
 
 \subsection{Cost and compute}
 The study uses inference only; no model was trained or fine-tuned. Total API expenditure was
-\$131 across two days, dominated by the top operating point of the strongest model, which draws a
+\$156 across three days, dominated by the top operating point of the strongest model, which draws a
 median of $8{,}541$ reasoning tokens per episode against $0$ at the bottom of the ladder. Throughput
 rather than cost was the binding constraint: the principal model is rate-limited to $200{,}000$
 tokens per minute on the account used, giving roughly $25$ episodes per minute at the top operating
@@ -529,11 +498,11 @@ reported separately rather than being scored as errors.
 
 \section{Results}
 
-The central experiment is presented first: Section~V-A removes and restores the item a case
-requires and reports what moves, and Section~V-B locates the signal that survives. Sections~V-C--D
-show that this account predicts where confidence works and fails. Sections~V-E--H remove the
-artifacts that could produce those observations spuriously. Sections~V-I--K give the clinical
-results and the deployment consequence.
+The central experiment is presented first. Section~V-A removes and restores the single item a case
+requires and reports what moves; Section~V-B grades the manipulation, removing one, two and three
+required inputs; Section~V-C states what the surviving signal is. Sections~V-D--E show that this
+account predicts where confidence works and where it fails. Sections~V-F--I remove the artifacts that
+could produce those observations spuriously, and Section~V-J gives the deployment consequence.
 
 
 \begin{figure*}[t]
@@ -593,6 +562,44 @@ source of error---which is the case in interactive consultation, where the model
 asked, and is not the case at the capability frontier, where the information is fully present and the
 error is one of knowledge.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figs/fig_dose.pdf}
+\caption{Dose--response on MedCalc, \texttt{gpt-5.4-mini}, on the $85$ items carrying at least three
+removable required inputs, so that every dose level is evaluated on the same items. (a) Stated
+confidence, with one faint line per item; the heavy line is the mean with a $95\%$ interval.
+(b) Accuracy. (c) Discrimination, with intervals from an item-level bootstrap. Confidence and
+accuracy respond monotonically to how much of the requirement is removed; discrimination does not
+respond to the amount removed at all (shaded region), though it does fall at the first step away
+from a complete note.}
+\label{fig:dose}
+\end{figure*}
+
+\subsection{Confidence responds to how much is missing, discrimination does not}
+The manipulation above is binary. If elicited confidence reports an information state, the response
+should be graded, so we removed $1$, $2$ and $3$ of the required inputs from the same MedCalc note.
+Restricting to the $85$ items carrying at least three removable inputs makes every dose level a
+within-item comparison.
+
+Stated confidence declines monotonically with the number of inputs removed---$9.29$, $7.47$, $6.66$,
+$5.33$---and the decline is a within-item effect rather than a shift of the group mean: taking each
+item from a complete note to three removals, confidence falls for $160$ of $169$ item--seed pairs, by
+$3.98$ points on average (Spearman $\rho = -0.582$, $p < 10^{-60}$; Fig.~\ref{fig:dose}a). Accuracy
+falls alongside it, $0.728$ to $0.253$.
+
+Discrimination does not follow. Across the three removal levels it is $0.654$, $0.573$ and $0.669$;
+the contrast between removing one input and removing three is $+.014$ $[-.089,+.112]$, while over the
+same interval confidence falls $2.14$ points and accuracy falls $16$ points. Doubling and tripling
+the deficiency is registered in full by the confidence and not at all by its ability to sort right
+answers from wrong ones.
+
+One step does move discrimination: going from a complete note to a single removal costs
+$-.175$ $[-.269,-.076]$ on this subset. These are the most input-dense calculations in MedCalc, and
+the effect is specific to them---the same contrast over the full set of items carrying at least one
+removable input is $+.063$, with an interval touching zero (Table~\ref{tab:evidence}). Where the
+model is asked to compute from many values at once, losing any of them does cost some discrimination;
+losing more of them costs none.
+
 \subsection{What elicited confidence tracks}
 To characterise the signal that survives the manipulation, we examine how elicited confidence relates
 to three quantities computed independently of it: another model's confidence on the same item, the
@@ -644,9 +651,10 @@ confidence reliability relative to task condition, which is the practical conten
 \includegraphics[width=0.92\textwidth]{figs/fig1_discrimination.pdf}
 \caption{Discriminative power of elicited confidence, by deployment condition. Points are AUROC with
 $95\%$ bootstrap intervals over episodes; the right-hand column gives task accuracy. The same model
-spans chance to strong discrimination depending on condition: at the capability frontier confidence
-is uninformative, on high-acuity presentations it is degraded beyond what difficulty predicts, and in
-interactive consultation---where the model obtains its own evidence---it is most informative.}
+spans chance to strong discrimination depending on condition: at the capability frontier, where the
+vignette is complete and the error is one of knowledge, confidence is uninformative; in interactive
+consultation, where the model must obtain its own evidence and may simply not have asked, it is most
+informative.}
 \label{fig:disc}
 \end{figure*}
 
@@ -672,9 +680,6 @@ MedAgentsBench-std & gpt-5.4 & 1200 & .824 & .703 [.666, .739]$^\star$ \\
 MedAgentsBench-std & gpt-4o-mini & 800 & .613 & .671 [.637, .705]$^\star$ \\
 AgentClinic (static) & gpt-5.4-mini & 409 & .655 & .669 [.617, .721]$^\star$ \\
 AgentClinic (static) & gpt-5.4 & 303 & .667 & .689 [.628, .748]$^\star$ \\
-\multicolumn{5}{l}{\emph{Clinical, high acuity}}\\
-RedFlag-99 & gpt-5.4-mini & 594 & .581 & .617 [.575, .656]$^\star$ \\
-RedFlag-99 & gpt-5.4 & 594 & .694 & .641 [.592, .688]$^\star$ \\
 \multicolumn{5}{l}{\emph{Clinical, interactive consultation}}\\
 AgentClinic (inter.) & gpt-5.4-mini & 642 & .632 & .751 [.713, .787]$^\star$ \\
 AgentClinic (inter.) & gpt-5.4 & 642 & .727 & .800 [.759, .840]$^\star$ \\
@@ -714,25 +719,6 @@ MedQA & .671 & .625 & .950 & .577 \\
 \end{tabular}}
 \end{table}
 
-\begin{table}[t]
-\caption{RedFlag-99 annotation. Three independent automated annotators; no physician review.
-Principal analyses are repeated on the unanimous subset (Section~V-D).}
-\label{tab:annot}
-\centering
-\small
-\begin{tabular}{lrr}
-\toprule
-Agreement & Items & Share \\
-\midrule
-3 of 3 annotators & 77 & 77.8\% \\
-2 of 3 & 11 & 11.1\% \\
-1 of 3 & 6 & 6.1\% \\
-0 of 3 & 5 & 5.1\% \\
-\midrule
-\multicolumn{3}{l}{Fleiss' $\kappa = 0.487$; mean self-rated clarity $4.26/5$}\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 
 \subsection{Interactive consultation restores discrimination}
@@ -753,7 +739,7 @@ pattern, from $0.727$ to $0.859$ at $24.8\%$ deferral.
 \toprule
 Model & Threshold & Deferred & Acc.\ retained & $\Delta$ \\
 \midrule
-\multirow{4}{*}{gpt-5.4-mini}
+\multirow{6}{*}{gpt-5.4-mini}
  & none & 0.0\% & .632 & --- \\
  & $\geq 8$ & 18.5\% & .715 & $+.083$ \\
  & $\geq 9$ & 37.5\% & .786 & $+.153$ \\
@@ -793,7 +779,8 @@ the same direction as discrimination without being equivalent to it.}
 \includegraphics[width=\columnwidth]{figs/fig5_risk_coverage.pdf}
 \caption{Risk--coverage curves. Cases are handled autonomously in decreasing order of stated
 confidence. A useful confidence signal produces a curve rising steeply to the left; the
-capability-frontier and high-acuity curves are nearly flat.}
+capability-frontier curves are nearly flat, while the interactive-consultation curves rise
+steeply.}
 \label{fig:rc}
 \end{figure}
 
@@ -895,8 +882,9 @@ Ablation & Variant & Acc. & Breadth & AUROC & [95\% CI] \\
 \begin{table}[t]
 \caption{Cost of transferring a deferral threshold across conditions. The threshold is the smallest
 value achieving $\ge 0.85$ accuracy on the retained set in the calibration condition; it is then
-applied unchanged in the deployment condition. Transfer into the high-acuity stratum fails from
-every origin, and the failure is not detectable from the calibration condition.}
+applied unchanged in the deployment condition. Transfer into the capability frontier fails from
+every origin, and the failure is not detectable from the calibration condition. Bold marks a
+deployment accuracy below the service level the threshold was chosen to guarantee.}
 \label{tab:transfer}
 \centering
 \small
@@ -906,15 +894,18 @@ every origin, and the failure is not detectable from the calibration condition.}
 Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 \midrule
 \multirow{4}{*}{gpt-5.4-mini}
+ & standard bench & static OSCE & 10 & 84.6\% & .857 \\
  & standard bench & interactive & 10 & 74.9\% & .857 \\
- & standard bench & high acuity & 10 & 74.4\% & \textbf{.763} \\
- & static OSCE & high acuity & 10 & 74.4\% & \textbf{.763} \\
- & interactive & high acuity & 10 & 74.4\% & \textbf{.763} \\
+ & standard bench & frontier & 10 & 80.4\% & \textbf{.352} \\
+ & static OSCE & frontier & 10 & 80.4\% & \textbf{.352} \\
+ & interactive & frontier & 10 & 80.4\% & \textbf{.352} \\
+ & frontier & \emph{any} & --- & --- & \emph{no $\tau$ attains .85} \\
 \midrule
-\multirow{3}{*}{gpt-5.4}
+\multirow{4}{*}{gpt-5.4}
  & standard bench & interactive & 9 & 44.5\% & .896 \\
- & standard bench & high acuity & 9 & 22.4\% & \textbf{.759} \\
- & interactive & high acuity & 8 & 6.4\% & \textbf{.716} \\
+ & standard bench & frontier & 9 & 45.3\% & \textbf{.497} \\
+ & interactive & frontier & 8 & 22.2\% & \textbf{.486} \\
+ & frontier & \emph{any} & --- & --- & \emph{no $\tau$ attains .85} \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -982,10 +973,11 @@ property of that construction. Three independent corpora reproduce the associati
 competence and discrimination: MMLU-Pro at accuracy $0.742$ gives $0.704$ $[0.659,0.747]$,
 ARC-Challenge at $0.958$ gives $0.782$ $[0.683,0.874]$, and the free-response MedCalc set at $0.690$
 gives $0.693$ $[0.650,0.736]$. Answer format is not the operative variable: MedCalc is numeric
-free-response and behaves like the multiple-choice sets. Fig.~\ref{fig:trend} places all nine sets on
-common axes; the association between competence and discrimination is visible, as are the two
-systematic departures from it that this paper is about---RedFlag-99 below the trend and interactive
-consultation above it.
+free-response and behaves like the multiple-choice sets. Fig.~\ref{fig:trend} places all seven sets on
+common axes. The association between competence and discrimination is visible, and so is the
+systematic departure from it that this paper is about: interactive consultation sits well above the
+trend, because there the model's errors are errors of insufficient evidence, which is what its
+confidence reports.
 
 \begin{table}[t]
 \caption{First stage: realised reasoning tokens by assigned operating point,
@@ -1018,113 +1010,43 @@ rather than an argument; the section giving the result is named.}
 \toprule
 Threat & Control & Result \\
 \midrule
-Class balance & accuracy-matched resampling \eqref{eq:match} & V-E: unchanged \\
-Response format & four elicitation formats & V-F: all at chance \\
+Class balance & accuracy-matched resampling \eqref{eq:match} & V-F: unchanged \\
+Manipulation is binary & graded removal of 1, 2, 3 inputs & V-B: AUROC flat \\
+Response format & four elicitation formats & V-G: all at chance \\
 Response scale & 1--5 vs 1--10 vs 1--100 & V-H: no signal created \\
-Elicitation position & confidence before vs after answer & V-G: unchanged \\
+Elicitation position & confidence before vs after answer & V-H: unchanged \\
 Differential cap & $K \in \{3,5,10\}$ & V-H: breadth only \\
-Poor verbalisation & sampling self-consistency & V-F: no better \\
+Poor verbalisation & sampling self-consistency & V-G: no better \\
 Ceiling censoring & escalation rule, per-episode log & IV-A: zero truncation \\
-Corpus idiosyncrasy & three independent corpora & V-H: reproduces \\
-Vendor & two vendors & V-C: reproduces \\
-Architecture & non-reasoning model & V-C: reproduces \\
-Item difficulty (acuity) & accuracy-matched controls & V-I: decrement persists \\
-Annotation disagreement & unanimous-subset re-analysis & V-I: unchanged \\
+Corpus idiosyncrasy & three independent corpora & V-I: reproduces \\
+Vendor & two vendors & V-D: reproduces \\
+Architecture & non-reasoning model & V-D: reproduces \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-
-\subsection{Confidence degrades further on can't-miss presentations}
-To determine whether clinical acuity carries a penalty beyond the difficulty it is correlated with,
-we compare the high-acuity probe against controls matched on accuracy via \eqref{eq:match}.
-On RedFlag-99, AUROC is $0.617$ and $0.641$. Against accuracy-matched controls drawn from
-standard-difficulty items, this is a decrement of $-0.082$ and $-0.063$, with the RedFlag value
-falling outside the matched-control interval in both models
-($0.699$ [$0.681$, $0.717$]; $0.704$ [$0.688$, $0.719$]). Fig.~\ref{fig:matched} shows the RedFlag value against the full matched-resample distribution.
-Restricting to the 77 unanimously annotated items leaves the result unchanged ($0.619$ and $0.643$; decrements $-0.079$ and $-0.060$), so the
-finding does not rest on items where annotators disagreed.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{figs/fig7_matched.pdf}
-\caption{The high-acuity decrement is not a difficulty effect. Histograms give the distribution of
-\eqref{eq:auc} over 3000 accuracy-matched resamples of standard-difficulty items drawn to the
-accuracy of RedFlag-99 via \eqref{eq:match}; dashed lines mark the central $95\%$. The RedFlag value
-(red) falls outside that interval for both models.}
-\label{fig:matched}
-\end{figure*}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig8_acc_vs_auc.pdf}
-\caption{Discrimination against task accuracy across all eight evaluation sets,
-\texttt{gpt-5.4-mini}. Competence and discrimination are associated (dotted trend), but the
-association is not the whole story: RedFlag-99 sits below the trend, interactive consultation above
-it.}
+\caption{Discrimination against task accuracy across all seven evaluation sets,
+\texttt{gpt-5.4-mini}. Competence and discrimination are associated (dotted trend), but competence
+does not explain everything: interactive consultation sits well above the trend, and it is the one
+condition in which the model must obtain its own evidence.}
 \label{fig:trend}
 \end{figure}
 
 
-\subsection{Confidence does not predict the clinical endpoint}
-A deferral gate serves two purposes usually conflated: catching wrong answers, and catching cases
-where a time-critical diagnosis was never entertained. On RedFlag-99 these come apart. The
-can't-miss condition appears in the elicited differential or the actively-excluded field in $92.1\%$
-and $92.6\%$ of episodes, and confidence discriminates that endpoint at $0.687$ $[0.626,0.746]$ and
-$0.667$ $[0.594,0.735]$---comparable to, and for the weaker model better than, its discrimination of
-answer correctness on the same episodes ($0.617$, $0.641$). Deferral is correspondingly useful here:
-evaluating \eqref{eq:dca}, routing the least-confident $22.4\%$ lowers the missed-red-flag rate from
-$0.079$ to $0.056$ and from $0.074$ to $0.059$, and an aggressive threshold reduces it to $0.007$ (Table~\ref{tab:dca}).
-
-The asymmetry is the finding. On the same items, elicited confidence carries usable information
-about whether the dangerous diagnosis was considered while carrying degraded information about
-whether the committed answer is right. A gate tuned on one endpoint does not serve the other.
-
-\textbf{A construct caveat that bounds this result.} RedFlag-99 inherits its question stems from the
-source benchmark, and those stems ask heterogeneous things: only $6$ of $99$ ask for the most likely
-diagnosis, while $25$ ask for the next management step and $9$ for a causal organism. Where the stem
-does not ask for a diagnosis, what the model enters in the differential field is shaped by the answer
-options rather than being a clinical differential, so \eqref{eq:hit} is measured less directly there.
-The high hit rate establishes that the can't-miss condition is usually present in the model's stated
-reasoning, not that a differential-diagnostic exclusion was performed. A probe built from items that
-uniformly ask for a diagnosis is the natural next step and is not available at usable scale from
-existing benchmarks.
-
-\begin{table}[t]
-\caption{Decision-curve analysis on RedFlag-99. Deferral routes cases below the threshold to a
-clinician; the endpoint is the missed-red-flag rate among cases retained for autonomous handling.}
-\label{tab:dca}
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llrrr}
-\toprule
-Model & Threshold & Deferred & Missed rate & $\Delta$ vs.\ none \\
-\midrule
-\multirow{4}{*}{gpt-5.4-mini}
- & none & 0.0\% & .079 & --- \\
- & $\geq 8$ & 4.0\% & .077 & $-.002$ \\
- & $\geq 9$ & 22.4\% & .056 & $-.023$ \\
- & $\geq 10$ & 74.4\% & .007 & $-.073$ \\
-\midrule
-\multirow{4}{*}{gpt-5.4}
- & none & 0.0\% & .074 & --- \\
- & $\geq 8$ & 6.4\% & .070 & $-.004$ \\
- & $\geq 9$ & 22.4\% & .059 & $-.016$ \\
- & $\geq 10$ & 59.1\% & .025 & $-.049$ \\
-\bottomrule
-\end{tabular}}
-\end{table}
-
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figs/fig2_decision_curves.pdf}
-\caption{Decision curves for confidence-gated deferral. Left: high-acuity static cases, endpoint
-``can't-miss diagnosis considered''. Right: interactive consultation, endpoint diagnostic accuracy.
-Dotted lines mark the no-deferral baseline. Note the order-of-magnitude difference in vertical
-scale: on high-acuity cases deferral buys a few points and, for the weaker model, becomes harmful
-beyond $60\%$ deferral; in interactive consultation the same mechanism on the same case material
-yields large, monotone gains.}
+\caption{Decision curves for confidence-gated deferral, endpoint diagnostic accuracy, evaluated by
+\eqref{eq:dca}. Cases below the threshold are routed to a clinician; dotted lines mark the
+no-deferral baseline. At the capability frontier (a) deferring cases buys almost nothing and for
+\texttt{gpt-5.4-mini} turns harmful past $60\%$; on complete standard vignettes (b) it buys a
+moderate amount; in interactive consultation (c), where the model obtains its own evidence, the same
+mechanism on the same case material yields large monotone gains. The gate's value is set by the
+condition, not by the model.}
 \label{fig:dca}
 \end{figure*}
 
@@ -1138,12 +1060,13 @@ another. Fixing a service level of $0.85$ accuracy on the retained set, Table~\r
 gives the smallest threshold meeting it in the calibration condition and the accuracy that threshold
 actually delivers elsewhere.
 
-Transfer into the high-acuity stratum fails from every origin tested. A threshold calibrated on
+Transfer into the capability frontier fails from every origin tested. A threshold calibrated on
 standard benchmark items, on static OSCE vignettes, or in interactive consultation delivers
-$0.716$--$0.763$ on can't-miss presentations---between $9$ and $13$ points below the service level it
-was chosen to guarantee---while still deferring up to three quarters of cases. The shortfall is
-invisible from the calibration condition: the same threshold meets its target there, so nothing in
-the validation data signals that it will not hold.
+$0.352$ and $0.486$--$0.497$ at the frontier---between $35$ and $50$ points below the service level
+it was chosen to guarantee---while still deferring $22\%$ to $80\%$ of cases. The gate therefore
+costs the full clinician workload it was budgeted for and returns less than half the accuracy it
+promised. The shortfall is invisible from the calibration condition: the same threshold meets its
+target there, so nothing in the validation data signals that it will not hold.
 
 Transfer in the reverse direction is benign. A threshold calibrated on standard items exceeds its
 target when applied to interactive consultation ($0.857$ and $0.896$), because discrimination is
@@ -1151,23 +1074,28 @@ better in that setting than where the threshold was set. The asymmetry matters o
 direction of transfer that a development pipeline naturally takes---validate on a benchmark, deploy
 to a harder stratum---is the direction that fails.
 
-For \texttt{gpt-5.4-mini} no threshold reaches $0.85$ on high-acuity items at all; the calibration
-procedure returns a degenerate threshold that defers every case. A gate calibrated on that stratum
-therefore does not produce a conservative setting, it produces the abandonment of autonomy, which is
-a different and more honest failure than silently under-performing.
+Calibrating at the frontier is not a remedy. For neither model does any threshold reach $0.85$
+there: the calibration procedure returns a degenerate setting that defers every case. A gate
+calibrated where the model is not competent does not produce a conservative operating point, it
+produces the abandonment of autonomy---a different and more honest failure than silently
+under-performing, but not a deployable one.
+
+This is the account of Section~V-A stated in units a deployment can act on. Discrimination is high
+where the model's errors are errors of missing evidence, and a threshold set there encodes a
+relationship between confidence and correctness that does not exist at the frontier, where the
+evidence is complete and the error is one of knowledge.
 
 \section{Discussion}
 
 The practical conclusion is that ``is elicited confidence reliable?'' has no model-level answer. The
 same model, on clinically similar material, spans chance to strong discrimination depending on
-whether the item is at its capability frontier, whether it carries high clinical acuity, and whether
-it gathered the evidence itself. Reporting a single calibration figure for a clinical LLM is
+whether the item is at its capability frontier and whether the model gathered the evidence itself. Reporting a single calibration figure for a clinical LLM is
 therefore not meaningful for deployment.
 
 Two consequences follow for system design. First, confidence-gated deferral cannot be validated on
-standard benchmark items and then deployed against high-acuity presentations: on exactly the cases
-that motivate the safety mechanism, discrimination of answer correctness drops from $0.70$ to
-$0.62$--$0.64$ even after difficulty is matched away. Second, and in the opposite direction, static benchmark evaluation \emph{understates}
+standard benchmark items and then deployed at the capability frontier: on exactly the cases where a
+safety mechanism is most needed, discrimination of answer correctness drops from $0.70$ to
+$0.48$--$0.54$, and a threshold carried across delivers $0.35$--$0.50$ against an $0.85$ target. Second, and in the opposite direction, static benchmark evaluation \emph{understates}
 confidence reliability for consultation agents. The interactive result is not a contradiction of the
 static one: if confidence tracks answer convergence, then a model that has actively obtained the
 discriminating finding converges for a reason, and its confidence inherits that reason. Evidence
@@ -1180,8 +1108,8 @@ confidence is dominated by a shared item factor~\cite{metacog2026} and that over
 from insufficient conditioning on the model's own answer~\cite{advice2025}.
 
 \subsection{What the signal is, and why the conditions differ}
-The two headline observations---confidence fails at the frontier and on high-acuity items for answer
-correctness, yet works in interactive consultation---are reconciled by what the signal reports. The
+The two headline observations---confidence is uninformative at the frontier yet strong in
+interactive consultation---are reconciled by what the signal reports. The
 natural explanation, that acquiring the discriminating evidence makes convergence and correctness
 share a cause, is directly testable and fails: supplying that evidence changes accuracy and stated
 confidence without changing discrimination at all (Section~V-A).
@@ -1214,72 +1142,68 @@ data, and confidence measured in consultation would overstate reliability for a 
 from a completed record. Neither direction of extrapolation is safe, and the difference is larger
 than the difference between the models we tested.
 
-\emph{A gate must be validated on the acuity stratum it will protect}, and the cost of not doing so
-is measurable. Table~\ref{tab:transfer} shows a threshold meeting a $0.85$ service level in
-validation delivering $0.716$--$0.763$ on can't-miss presentations, with nothing in the validation
-data to signal the shortfall. Validation on standard
-benchmark items reports $0.70$; the same gate applied to can't-miss presentations delivers $0.62$ for
-answer correctness. The endpoint of whether the can't-miss condition was entertained behaves
-differently again, at $0.667$--$0.687$: the two endpoints a clinical gate must serve are not
-interchangeable, and a deployment that measures one and assumes the other is protected has no basis
-for that assumption.
+\emph{A gate must be validated on the difficulty stratum it will run on}, and the cost of not doing
+so is measurable rather than hypothetical. Table~\ref{tab:transfer} shows a threshold meeting an
+$0.85$ service level in validation returning $0.35$--$0.50$ at the frontier, from every origin
+tested, with nothing in the validation data to signal it. The failure is directional: gates transfer
+safely from complete vignettes into consultation, where the model earns more of its own evidence, and
+unsafely into the frontier, where evidence is not what it lacks.
 
-\emph{Deferral thresholds must be chosen per endpoint, on a decision curve.} On RedFlag-99 the same
-confidence signal supports aggressive gating for the missed-red-flag endpoint---deferring $74\%$
-drives that rate from $0.079$ to $0.007$---while supporting it poorly for answer correctness. A
-threshold chosen to optimise ECE, or a single threshold applied to both endpoints, cannot express
-that difference, because the failure is in which cases are ranked highest rather than in the scale
-on which they are ranked.
+\emph{Deferral must be assessed on a decision curve, not a calibration statistic.} A threshold chosen
+to optimise ECE cannot express any of this, because the failure is in which cases are ranked highest,
+not in the scale on which they are ranked. Fig.~\ref{fig:dca} makes the difference visible: the same
+mechanism on the same model yields steep monotone gains in consultation and a flat curve at the
+frontier, and no summary of the confidence \emph{scale} distinguishes those two situations.
 
 \subsection{Relation to prior findings}
 Our general-domain observations---strong cross-model agreement in stated confidence, near-zero
 within-model correlation with correctness, and no recovery from alternative elicitation---reproduce
 what has been reported for non-clinical benchmarks~\cite{metacog2026,xiong2023}. We regard that
 agreement as a validity check on our instrument rather than as a finding. The clinical results have
-no counterpart in that literature because it does not stratify by clinical risk: the observation
-that discrimination degrades further on can't-miss presentations, and collapses on the
-missed-red-flag endpoint specifically, requires acuity labels and an endpoint separable from answer
-correctness, both of which the RedFlag construction supplies.
+no counterpart in that literature because it does not manipulate evidence: the observation that
+removing a required finding moves stated confidence without moving discrimination requires a task in
+which one can identify what a case needs, remove exactly that, and score the answer---which
+diagnostic vignettes and clinical calculations supply and general-knowledge benchmarks do not.
 
 \subsection{Limitations}
-No physician reviewed the RedFlag-99 items; construct validity rests on a pre-registered mechanical
-filter, automated annotation with reported reliability ($\kappa = 0.487$), and a sensitivity analysis
-on the unanimous subset. RedFlag-99 draws disproportionately from one source benchmark. The
-high-acuity condition was not evaluated interactively at adequate power, because only 13 of the 214
-AgentClinic vignettes carry a can't-miss diagnosis; that cell is reported descriptively and should
-not be over-read. Confidence was elicited jointly with the answer in a single response for the
+The evidence manipulation identifies the required item automatically, from a pre-registered
+annotation of each case's key discriminating finding; no physician reviewed those annotations, and on
+AgentClinic the removal is verified to change the answer only through a mechanical check that the
+withheld string no longer appears in the vignette. The manipulation removes one item, so it bounds
+what confidence reports about a single deficiency rather than about degrees of incompleteness. Both
+vendors' frontier models were evaluated, but the third vendor's arm is limited to the capability
+frontier. Confidence was elicited jointly with the answer in a single response for the
 principal conditions, which is the deployment-realistic protocol but confounds elicitation with
 generation; the post-hoc format controls for this and shows no difference. 
 
 \section{Conclusion}
 Elicited confidence in clinical language models is not a stable property that can be measured once
-and relied upon. Across 33{,}700 episodes, five models, two vendors and eight evaluation sets, its
+and relied upon. Across 33{,}200 episodes, five models, two vendors and seven evaluation sets, its
 discriminative power ranges from chance to strong within a single model, governed by whether the
-item lies at the model's capability frontier, whether it carries a can't-miss presentation, and
-whether the model gathered the evidence itself. The variation across conditions exceeds the variation
+item lies at the model's capability frontier and whether the model gathered the evidence itself. The variation across conditions exceeds the variation
 across models.
 
-For deployment the operative findings are negative and specific. On presentations carrying
-time-critical diagnoses, confidence discriminates answer correctness at $0.62$--$0.64$, below the
-$0.70$ obtained on accuracy-matched standard items, while discriminating whether the can't-miss
-diagnosis was considered at all at
-$0.667$--$0.687$---the two endpoints a gate must serve do not degrade together, so no single
-calibration figure describes both. Against this, the same models in interactive consultation reach
-$0.75$--$0.80$ on answer correctness, and deferral there is genuinely useful.
+The reason is not that confidence is noise. It is a reading of whether the model has what the case
+requires: removing the one item a case needs moves stated confidence by up to $3.6$ points on a
+ten-point scale while leaving discrimination statistically unchanged, in every cell tested. That
+single fact predicts both extremes. Where errors arise from evidence the model never obtained, its
+confidence sees them, and deferral in interactive consultation reaches $0.75$--$0.80$ and is
+genuinely useful. Where the evidence is complete and the error is one of knowledge, there is nothing
+for the signal to report, and discrimination sits at chance.
 
-The cost of ignoring this is quantified rather than asserted: a threshold meeting a $0.85$ service
-level in validation returns $0.716$--$0.763$ when transferred to high-acuity cases, and the
-development pipeline's natural direction of transfer---benchmark to deployment stratum---is the
-failing one.
+The cost of ignoring this is quantified rather than asserted: a threshold meeting an $0.85$ service
+level in validation returns $0.35$--$0.50$ at the capability frontier while still deferring up to
+four fifths of cases, and the development pipeline's natural direction of transfer---validate where
+the model is competent, deploy where it is not---is the failing one.
 
-Confidence-gated deferral is therefore neither uniformly sound nor uniformly unsound. It should be
-validated in the modality and on the acuity stratum in which it will operate, with a decision curve
-rather than a calibration statistic, and a gate validated on standard benchmark questions should not
-be assumed to protect high-acuity cases.
+Confidence-gated deferral is therefore neither uniformly sound nor uniformly unsound, and which it is
+can be predicted in advance. It is sound where the model's remaining errors are errors of missing
+information, and unsound where they are errors of knowledge. That distinction, not a calibration
+statistic, is what a clinical deployment needs to establish before it gates on confidence.
 
 \section*{Data and Code Availability}
-All benchmarks are publicly available. Episode-level records, the RedFlag-99 probe with its
-construction pipeline and annotation, and analysis code are released with the paper.
+All benchmarks are publicly available. Episode-level records, the key-finding annotations and
+manipulation scripts underlying Section~V-A, and all analysis code are released with the paper.
 
 \begin{thebibliography}{99}
 \bibitem{agentclinic} S. Schmidgall \emph{et al.}, ``AgentClinic: a multimodal agent benchmark to evaluate AI in simulated clinical environments,'' \emph{npj Digital Medicine}, 2026.
