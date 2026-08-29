@@ -14,14 +14,14 @@
 
 \begin{document}
 
-\title{Elicited Confidence Is Not a Safety Signal:\\
-Task-Dependent Reliability of Verbalized Uncertainty in Clinical Language Models}
+\title{Confidence Reports an Information State, Not an Answer State:\\
+Why Verbalized Uncertainty Fails Where Clinical Errors Are Not Informational}
 
 \author{Anonymous
 \thanks{Manuscript submitted 2026. Corresponding author: --.}}
 
 \markboth{IEEE Transactions on Biomedical and Health Informatics}%
-{Author \MakeLowercase{\textit{et al.}}: Elicited Confidence Is Not a Safety Signal}
+{Author \MakeLowercase{\textit{et al.}}: Confidence Reports an Information State}
 
 \maketitle
 
@@ -41,11 +41,17 @@ diagnoses, discrimination of answer correctness degrades beyond what difficulty 
 ($\Delta$AUROC $-0.082$ and $-0.063$ against accuracy-matched controls) while discrimination of
 whether the can't-miss diagnosis was entertained remains intact ($0.687$/$0.667$); the two endpoints
 a clinical gate must serve therefore do not degrade together. When the model gathers its own evidence
-through multi-turn consultation, discrimination rises to $0.75$/$0.80$. We quantify the consequence:
-a deferral threshold meeting an $0.85$ service level in validation delivers $0.716$--$0.763$ when
-transferred unchanged to can't-miss presentations, with nothing in the validation data signalling the
-shortfall, and the direction of transfer a development pipeline naturally takes is the failing one.
-A confidence gate must be validated in the modality and on the acuity stratum in which it will run.
+through multi-turn consultation, discrimination rises to $0.75$/$0.80$. A causal manipulation identifies what the signal
+is: removing, restoring, or requiring the model to request the single discriminating finding changes
+accuracy by $9.1$ points and the committed diagnosis on $36\%$ of cases, yet leaves discrimination
+unchanged across all three conditions. Confidence instead separates episodes in which the model
+obtained that finding from those in which it did not ($\mathrm{AUC}=0.661$), and discriminates
+correctness \emph{better} among episodes where it was missing. Elicited confidence therefore reports
+an information state, not an answer state; it is informative exactly where insufficient information
+is the dominant error mode and uninformative where errors are failures of knowledge. The practical
+consequence is quantified: a deferral threshold meeting an $0.85$ service level in validation returns
+$0.716$--$0.763$ when transferred unchanged to can't-miss presentations, with nothing in the
+validation data signalling the shortfall.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -1011,6 +1017,64 @@ Model & Calibrated on & Deployed on & $\tau$ & Deferred & Acc.\ retained \\
 \end{tabular}}
 \end{table}
 
+
+\begin{table}[t]
+\caption{Causal manipulation of the evidence available to the model, \texttt{gpt-5.4-mini}, 214
+AgentClinic cases $\times$ 2 seeds. The single key discriminating finding is removed, restored, or
+made available only on request. The manipulation works---restoring it raises accuracy by $9.1$
+points and changes the committed diagnosis on $36.4\%$ of paired cases---yet discrimination is
+unchanged across all three conditions.}
+\label{tab:evidence}
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrl}
+\toprule
+Condition & $n$ & Acc. & Conf. & Key obtained & AUROC [95\% CI] \\
+\midrule
+Withheld & 428 & .764 & 8.96 & .000 & .727 [.669, .782] \\
+Given & 428 & .855 & 9.43 & 1.000 & .732 [.661, .798] \\
+Acquired on request & 428 & .629 & 8.56 & .463 & .769 [.723, .814] \\
+\midrule
+\multicolumn{6}{l}{\emph{Pairwise differences (bootstrap)}}\\
+Given $-$ Withheld & & & & & $+.006$ [$-.081$, $+.094$] \\
+Acquired $-$ Given & & & & & $+.039$ [$-.039$, $+.118$] \\
+Acquired $-$ Withheld & & & & & $+.044$ [$-.026$, $+.117$] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Evidence availability does not create the signal}
+The account that suggests itself for the interactive result---that a model which has obtained the
+discriminating finding converges for a reason related to correctness, so its confidence inherits
+that reason---is testable directly, and it is wrong. We hold the case, the reference label, the
+prompt and the schema fixed and vary only what the model has in hand: the key discriminating finding
+is removed from the vignette, restored to it, or made available only if the model requests it.
+
+The manipulation is effective. Restoring the finding raises accuracy from $0.764$ to $0.855$, raises
+mean stated confidence from $8.96$ to $9.43$, and changes the committed diagnosis on $36.4\%$ of
+paired cases, so the model is demonstrably using it. Discrimination, however, does not move:
+$0.727$, $0.732$ and $0.769$ across the three conditions, with every pairwise interval containing
+zero (Table~\ref{tab:evidence}). Making the decisive evidence available does not make elicited
+confidence better at separating right answers from wrong ones, and neither does requiring the model
+to obtain it itself.
+
+Two further observations locate what the signal is. First, within the acquired condition, confidence
+distinguishes episodes in which the model actually obtained the key finding from those in which it
+did not at $\mathrm{AUC}=0.661$: the model has partial access to whether its own information is
+sufficient. Second, discrimination is \emph{higher} among episodes where the key finding was not
+obtained ($0.790$) than where it was ($0.714$), even though accuracy is much lower there ($0.543$
+versus $0.727$).
+
+Taken together these say that elicited confidence reports an information state rather than an answer
+state. It tracks, imperfectly, whether the model has what it needs; it does not track whether the
+conclusion it drew is correct. The two coincide only when insufficiency is the dominant source of
+error---which is the case in interactive consultation, where the model may simply not have asked, and
+is not the case at the capability frontier, where the information is fully present and the error is
+one of knowledge. This single account predicts all four observations: the frontier collapse, the
+interactive recovery, the null under evidence manipulation, and the inversion in the
+not-obtained subgroup.
+
 \subsection{The cost of transferring a threshold}
 The recommendation that a gate be validated where it will run is only useful if the cost of ignoring
 it can be stated. We therefore calibrate a threshold in one condition and apply it unchanged in
@@ -1069,24 +1133,31 @@ computation did not produce. It is consistent with general-domain findings that 
 confidence is dominated by a shared item factor~\cite{metacog2026} and that overconfidence stems
 from insufficient conditioning on the model's own answer~\cite{advice2025}.
 
-\subsection{Why the interactive result is not a contradiction}
-The two headline findings---confidence fails at the frontier and on high-acuity cases, yet works in
-interactive consultation---are reconciled by what confidence is tracking. If elicited confidence
-reports convergence rather than correctness, its informativeness depends on whether convergence and
-correctness happen to align in the setting at hand. On a fully specified vignette the model
-converges or fails to converge for reasons largely independent of whether it is right: our data show
-answer stability correlating with confidence at $r=0.36$--$0.50$ but with correctness at only
-$r=0.05$--$0.13$. In interactive consultation the model that has obtained the discriminating finding
-converges \emph{because} it obtained it, so convergence and correctness share a cause and confidence
-inherits the information. Evidence acquisition thus supplies a signal that a complete vignette never
-requires the model to earn.
+\subsection{What the signal is, and why the conditions differ}
+The two headline observations---confidence fails at the frontier and on high-acuity items for answer
+correctness, yet works in interactive consultation---are reconciled by what the signal reports. The
+natural explanation, that acquiring the discriminating evidence makes convergence and correctness
+share a cause, is directly testable and fails: supplying that evidence changes accuracy and stated
+confidence without changing discrimination at all (Section~V-I).
 
-This account also predicts the elicitation-format null. If the four formats read out the same
-underlying convergence signal, rewording the question cannot manufacture information the computation
-did not produce, and the ablations confirm that neither the response scale, the differential cap, nor
-the position of the confidence field changes the outcome. It is consistent with general-domain
-findings that cross-model confidence is dominated by a shared item factor~\cite{metacog2026} and that
-overconfidence arises from insufficient conditioning on the model's own answer~\cite{advice2025}.
+What survives the manipulation is an account in terms of information state. Elicited confidence
+tracks, imperfectly, whether the model has what it needs to answer---it separates episodes in which
+the key finding was obtained from those in which it was not at $\mathrm{AUC}=0.661$---and it does not
+track whether the answer drawn from that information is right. Discrimination of correctness is
+therefore high exactly where insufficiency is the dominant error mode and low where it is not. In
+interactive consultation the model frequently fails to ask, so insufficiency dominates and confidence
+is informative. At the capability frontier every item is fully specified; errors are failures of
+medical knowledge rather than of information, and a signal about information carries nothing about
+them. The subgroup inversion follows for the same reason: among episodes where the model did not
+obtain the key finding, discrimination is higher ($0.790$) than where it did ($0.714$), because in
+the former group the errors are the kind the signal can see.
+
+This also explains why no elicitation format helps. All four formats read out the same underlying
+quantity; rewording the question cannot make a signal about information sufficiency report on
+knowledge adequacy. It is consistent with general-domain findings that cross-model confidence is
+dominated by a shared item factor~\cite{metacog2026} and that overconfidence arises from
+insufficient conditioning on the model's own answer~\cite{advice2025}---an answer-conditioned signal
+is exactly what an information-state signal is not.
 
 \subsection{Implications for clinical deployment}
 Three consequences follow for systems that gate on confidence.
