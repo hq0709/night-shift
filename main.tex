@@ -360,11 +360,10 @@ between conditions only in $e$ and in $\mathcal{D}$.
 The primary endpoint is the probability that a correct episode is assigned higher confidence than an
 incorrect one,
 \begin{equation}
-\mathrm{AUC}(c,a)=\Pr\big(c_i > c_j\big) + \tfrac{1}{2}\Pr\big(c_i = c_j\big),
-\quad a_i=1,\ a_j=0,
+\mathrm{AUC}(c,a)=\Pr\big(c_i > c_j\big) + \tfrac{1}{2}\Pr\big(c_i = c_j\big)
 \label{eq:auc}
 \end{equation}
-estimated by the rank statistic
+for $a_i=1$, $a_j=0$, estimated by the rank statistic
 $\widehat{\mathrm{AUC}} = \big(\sum_{i:a_i=1} r_i - n_1(n_1+1)/2\big) / (n_1 n_0)$ with $r_i$ the
 mid-rank of $c_i$ in the pooled sample and $n_1,n_0$ the counts of correct and incorrect episodes.
 
@@ -975,6 +974,7 @@ rather than a label.}
 \label{tab:firststage}
 \centering
 \small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrrrr}
 \toprule
 Operating point & $n$ & Median & IQR & p90 & Trunc. \\
@@ -983,7 +983,7 @@ Operating point & $n$ & Median & IQR & p90 & Trunc. \\
 \texttt{low} & 745 & 80 & [42, 159] & 317 & .000 \\
 \texttt{none} & 745 & 0 & [0, 0] & 0 & .000 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{table}[t]
